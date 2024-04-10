@@ -1,7 +1,6 @@
 - 👋 Hi, I’m @TasStef
 - 👀 I’m interested in Computer Engineering
-- 🌱 I’m currently learning statistic visualization
-- 💞️ I’m looking to collaborate on java,C, Assembly
+- 💞️ I’m looking to collaborate on JavaScript, C#, Python
 - 📫 Mail me at 9004757@gmail.com
 
 <!---
