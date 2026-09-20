@@ -8,7 +8,8 @@ import { profile } from '../data/profile';
 	<div class="about">
 		<p class="about-lead reveal">{profile.intro}</p>
 
-		<div class="block reveal" style="--reveal-delay: 60ms">
+		<div class="about-meta">
+			<div class="block reveal" style="--reveal-delay: 60ms">
 			<h3 class="label block-title">Education</h3>
 			<ul class="edu-list">
 				{
@@ -24,7 +25,7 @@ import { profile } from '../data/profile';
 			</ul>
 		</div>
 
-		<div class="block reveal" style="--reveal-delay: 120ms">
+			<div class="block reveal" style="--reveal-delay: 120ms">
 			<h3 class="label block-title">Outside work</h3>
 			<ul class="interests">
 				{
@@ -39,6 +40,7 @@ import { profile } from '../data/profile';
 					))
 				}
 			</ul>
+			</div>
 		</div>
 	</div>
 </Section>
@@ -55,6 +57,15 @@ import { profile } from '../data/profile';
 		color: var(--text-muted);
 		max-width: var(--measure);
 		text-wrap: pretty;
+	}
+
+	/* Education and Outside work share a row again; they only went full
+	   width while the interest cards were laid out horizontally. */
+	.about-meta {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+		gap: var(--sp-8);
+		align-items: start;
 	}
 
 	.block-title {
@@ -88,8 +99,8 @@ import { profile } from '../data/profile';
 	   instead of reading as three nouns in pills. */
 	.interests {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-		gap: var(--sp-4);
+		grid-template-columns: 1fr;
+		gap: var(--sp-3);
 	}
 
 	.interest {
