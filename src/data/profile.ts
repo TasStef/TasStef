@@ -32,7 +32,7 @@ export const profile: Profile = {
 	title: 'Software Engineer',
 	role: 'Full Stack Software Engineer',
 	location: 'London, UK',
-	pitch: 'I build the systems that move other people’s money.',
+	pitch: 'I build systems that hold up under real use.',
 	intro:
 		'Full stack software engineer working across .NET and TypeScript, currently at Tipalti. Four years in fintech building payment and treasury systems where correctness is not negotiable. I like owning a feature end to end, from data model to deployment.',
 	email: 'tasos.stefanidis@outlook.com',

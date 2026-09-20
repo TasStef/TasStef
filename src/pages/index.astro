@@ -10,14 +10,43 @@ import Contact from '../components/Contact.astro';
 ---
 
 <Base>
-	<Hero />
-	<Stats />
+	{/*
+	  Hero and Stats share one viewport-height grid so the numbers are always
+	  above the fold. `1fr auto` means the stats are measured first and the
+	  hero takes whatever is left, rather than the hero being given a guessed
+	  height and hoping the stats fit underneath.
+	*/}
+	<div class="fold">
+		<Hero />
+		<Stats />
+	</div>
+
 	<About />
 	<Projects />
 	<Experience />
 	<Skills />
 	<Contact />
 </Base>
+
+<style>
+	.fold {
+		/* svh, not vh: on mobile, vh ignores browser chrome and the bottom of
+		   the block sits underneath it, which is the exact problem this is
+		   meant to solve. */
+		min-height: 100svh;
+		display: grid;
+		grid-template-rows: 1fr auto;
+	}
+
+	/* Below this the guarantee stops being worth what it costs: holding it
+	   means shrinking the display type until the hero stops working.
+	   Landscape phones are the real case. Let it scroll instead. */
+	@media (max-height: 600px) {
+		.fold {
+			min-height: 0;
+		}
+	}
+</style>
 
 <script>
 	import { initMotion } from '../scripts/motion';

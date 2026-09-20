@@ -4,8 +4,18 @@ import { profile } from '../data/profile';
 
 <header class="hero">
 	<div class="container hero-inner">
-		<h1 class="hero-name enter" style="--enter-delay: 60ms">
-			{profile.name} - {profile.title}
+		<p class="label hero-meta enter">
+			{profile.title} · {profile.location}
+		</p>
+
+		<h1
+			class="hero-name enter"
+			style="--enter-delay: 60ms"
+			data-scramble
+			data-scramble-now
+			data-scramble-set="alpha"
+		>
+			{profile.name}
 		</h1>
 
 		<p class="hero-pitch enter" style="--enter-delay: 120ms">
@@ -13,17 +23,19 @@ import { profile } from '../data/profile';
 		</p>
 
 		<nav class="hero-links enter" aria-label="Primary" style="--enter-delay: 180ms">
-			<a class="btn btn-primary" href="#projects">View work</a>
-			<a class="btn" href="#experience">Experience</a>
 			<a class="btn" href="#about">About me</a>
-			<a class="btn" href={`mailto:${profile.email}`}>Get in touch</a>
+			<a class="btn" href="#projects">View work</a>
+			<a class="btn" href="#experience">Experience</a>
+			<a class="btn" href="#contact">Get in touch</a>
 		</nav>
 	</div>
 </header>
 
 <style>
 	.hero {
-		padding-block: clamp(var(--sp-24), 18vh, var(--sp-32)) var(--sp-16);
+		padding-block: var(--sp-16);
+		display: grid;
+		align-content: center;
 	}
 
 	.hero-inner {
@@ -48,9 +60,21 @@ import { profile } from '../data/profile';
 		box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
 	}
 
+	.hero-meta {
+		color: var(--text-muted);
+	}
+
 	.hero-name {
 		font-size: var(--step-4);
 		font-weight: 600;
+		/* The name is one unit; never break it across lines mid-word. */
+		text-wrap: nowrap;
+	}
+
+	@media (max-width: 26rem) {
+		.hero-name {
+			text-wrap: balance;
+		}
 	}
 
 	.hero-pitch {

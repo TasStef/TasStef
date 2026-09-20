@@ -70,11 +70,28 @@ export function initReveal() {
 const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/\#%$&*<>[]';
 
 /**
+ * Picks a stand-in glyph for one character.
+ *
+ * `alpha` mode substitutes letters of the SAME CASE as the target, which is
+ * what a name needs: the punctuation-heavy default set reads as technical at
+ * label size but as corrupted text at display size.
+ */
+function randomGlyph(target: string, mode: string | undefined) {
+	if (mode === 'alpha') {
+		const isLower = target >= 'a' && target <= 'z';
+		const base = isLower ? 97 : 65;
+		return String.fromCharCode(base + ((Math.random() * 26) | 0));
+	}
+	return GLYPHS[(Math.random() * GLYPHS.length) | 0];
+}
+
+/**
  * Resolves each character from a random glyph to its real value on a
  * stagger, so the label appears to decode.
  */
 function scramble(el: HTMLElement, durationMs = 620) {
 	const final = el.textContent ?? '';
+	const mode = el.dataset.scrambleSet;
 	if (!final.trim()) return;
 
 	// Each character locks in at its own point in the timeline. Earlier
@@ -101,7 +118,7 @@ function scramble(el: HTMLElement, durationMs = 620) {
 				out += ch;
 				settled++;
 			} else {
-				out += GLYPHS[(Math.random() * GLYPHS.length) | 0];
+				out += randomGlyph(ch, mode);
 			}
 		}
 
@@ -122,9 +139,14 @@ export function initScramble() {
 	if (reduced()) return;
 
 	for (const el of targets) {
-		// Hold the box steady so decoding cannot reflow the layout.
-		el.style.display = 'inline-block';
-		el.style.minWidth = `${(el.textContent ?? '').length}ch`;
+		// Lock the CURRENT rendered height so glyph substitution cannot change
+		// where the text wraps and shift everything below it.
+		//
+		// This used to lock min-width in `ch`, which worked for a small mono
+		// label but overflows a large proportional heading on narrow screens.
+		// Height is the dimension that actually causes layout shift.
+		const { height } = el.getBoundingClientRect();
+		if (height) el.style.minHeight = `${Math.ceil(height)}px`;
 
 		if (el.hasAttribute('data-scramble-now')) {
 			scramble(el);
