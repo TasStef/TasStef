@@ -1,0 +1,177 @@
+/**
+ * All client-side motion for the site. Kept in one module so the total JS
+ * cost is visible in one place.
+ *
+ * Shared rules, applied by every function here:
+ *  - The DOM already contains the final, correct content. Motion only ever
+ *    animates *towards* what is already there, so nothing is wrong or
+ *    missing if this file fails to load or execute.
+ *  - Everything is skipped entirely under prefers-reduced-motion.
+ */
+
+const reduced = () =>
+	window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+
+/** Fire `fn` once, the first time `el` scrolls into view. */
+function onceInView(el: Element, fn: () => void, rootMargin = '0px 0px -10% 0px') {
+	if (!('IntersectionObserver' in window)) {
+		fn();
+		return;
+	}
+	const io = new IntersectionObserver(
+		(entries) => {
+			for (const e of entries) {
+				if (!e.isIntersecting) continue;
+				io.unobserve(e.target);
+				fn();
+			}
+		},
+		{ rootMargin, threshold: 0.2 }
+	);
+	io.observe(el);
+}
+
+/* ------------------------------------------------------------------ */
+/* Scroll reveal                                                       */
+/* ------------------------------------------------------------------ */
+
+export function initReveal() {
+	const targets = document.querySelectorAll<HTMLElement>('.reveal');
+	if (reduced() || !('IntersectionObserver' in window) || !targets.length) return;
+
+	// Added only from here, so the hiding rules in global.css never apply
+	// unless this code is running and able to undo them.
+	document.documentElement.classList.add('has-reveal');
+
+	const io = new IntersectionObserver(
+		(entries) => {
+			for (const e of entries) {
+				if (!e.isIntersecting) continue;
+				e.target.classList.add('is-visible');
+				io.unobserve(e.target);
+			}
+		},
+		{ rootMargin: '0px 0px -8% 0px', threshold: 0.05 }
+	);
+	for (const el of targets) io.observe(el);
+
+	// Safety net: reveal everything rather than risk stranding content.
+	window.setTimeout(() => {
+		for (const el of targets) el.classList.add('is-visible');
+	}, 3000);
+}
+
+/* ------------------------------------------------------------------ */
+/* Text scramble                                                       */
+/* ------------------------------------------------------------------ */
+
+const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/\#%$&*<>[]';
+
+/**
+ * Resolves each character from a random glyph to its real value on a
+ * stagger, so the label appears to decode.
+ */
+function scramble(el: HTMLElement, durationMs = 620) {
+	const final = el.textContent ?? '';
+	if (!final.trim()) return;
+
+	// Each character locks in at its own point in the timeline. Earlier
+	// characters settle first, so the label reads as decoding left-to-right
+	// with some jitter, rather than snapping all at once.
+	const revealAt = [...final].map(
+		(_, i) => (i / final.length) * 0.55 + Math.random() * 0.4
+	);
+	const t0 = performance.now();
+
+	const tick = (now: number) => {
+		const p = Math.min(1, (now - t0) / durationMs);
+		let out = '';
+		let settled = 0;
+
+		for (let i = 0; i < final.length; i++) {
+			const ch = final[i];
+			if (ch === ' ') {
+				out += ' ';
+				settled++;
+				continue;
+			}
+			if (p >= revealAt[i]) {
+				out += ch;
+				settled++;
+			} else {
+				out += GLYPHS[(Math.random() * GLYPHS.length) | 0];
+			}
+		}
+
+		el.textContent = out;
+
+		if (settled < final.length) {
+			requestAnimationFrame(tick);
+		} else {
+			el.textContent = final; // always land exactly on the real text
+		}
+	};
+
+	requestAnimationFrame(tick);
+}
+
+export function initScramble() {
+	const targets = document.querySelectorAll<HTMLElement>('[data-scramble]');
+	if (reduced()) return;
+
+	for (const el of targets) {
+		// Hold the box steady so decoding cannot reflow the layout.
+		el.style.display = 'inline-block';
+		el.style.minWidth = `${(el.textContent ?? '').length}ch`;
+
+		if (el.hasAttribute('data-scramble-now')) {
+			scramble(el);
+		} else {
+			onceInView(el, () => scramble(el));
+		}
+	}
+}
+
+/* ------------------------------------------------------------------ */
+/* Count-up numbers                                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Counts from 0 up to the value already rendered in the element.
+ *
+ * The final number is server-rendered, so with JS disabled the real figure
+ * is shown rather than a zero.
+ */
+export function initCounters() {
+	const targets = document.querySelectorAll<HTMLElement>('[data-count-to]');
+
+	for (const el of targets) {
+		const to = Number(el.dataset.countTo);
+		if (!Number.isFinite(to)) continue;
+
+		if (reduced()) continue; // leave the server-rendered value in place
+
+		onceInView(el, () => {
+			const duration = 1400;
+			const t0 = performance.now();
+
+			const tick = (now: number) => {
+				const p = Math.min(1, (now - t0) / duration);
+				el.textContent = String(Math.round(easeOut(p) * to));
+				if (p < 1) requestAnimationFrame(tick);
+				else el.textContent = String(to);
+			};
+
+			el.textContent = '0';
+			requestAnimationFrame(tick);
+		});
+	}
+}
+
+export function initMotion() {
+	initReveal();
+	initScramble();
+	initCounters();
+}

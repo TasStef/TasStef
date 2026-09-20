@@ -43,8 +43,8 @@ const year = new Date().getFullYear();
 	<body>
 		<a class="skip-link" href="#main">Skip to content</a>
 
-		<!-- One radial glow. Resist adding more; competing glows are the
-		     main way this look goes wrong. -->
+		<!-- Two overlapping glows, blue and purple. Two is the limit;
+		     more and it stops reading as light and starts reading as haze. -->
 		<div class="glow" aria-hidden="true"></div>
 		<div class="grain" aria-hidden="true"></div>
 
@@ -67,11 +67,17 @@ const year = new Date().getFullYear();
 				width: min(120rem, 160vw);
 				height: 70vh;
 				transform: translateX(-50%);
-				background: radial-gradient(
-					ellipse at center,
-					var(--glow) 0%,
-					transparent 58%
-				);
+				background:
+					radial-gradient(
+						ellipse 62% 72% at 36% 38%,
+						var(--glow) 0%,
+						transparent 60%
+					),
+					radial-gradient(
+						ellipse 52% 62% at 68% 56%,
+						var(--glow-2) 0%,
+						transparent 62%
+					);
 				filter: blur(90px);
 				pointer-events: none;
 				z-index: 0;

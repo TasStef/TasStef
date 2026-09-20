@@ -1,0 +1,84 @@
+---
+import { stats } from '../data/stats';
+---
+
+<section class="stats" aria-label="Key numbers">
+	<div class="container stats-grid">
+		{
+			stats.map((s, i) => (
+				<div class="stat reveal" style={`--reveal-delay: ${i * 90}ms`}>
+					<p class="stat-figure">
+						{/*
+						  The real value is rendered here. The counter animates
+						  up to it; with JS off the correct number just shows.
+						*/}
+						<span
+							class="stat-value"
+							data-count-to={s.value}
+							style={`min-width: ${String(s.value).length}ch`}
+						>
+							{s.value}
+						</span>
+						<span class="stat-suffix">{s.suffix}</span>
+					</p>
+					<p class="stat-label">{s.label}</p>
+				</div>
+			))
+		}
+	</div>
+</section>
+
+<style>
+	.stats {
+		padding-block: var(--sp-12);
+		border-block: 1px solid var(--border);
+	}
+
+	.stats-grid {
+		display: grid;
+		/* Explicit 2 -> 4 rather than auto-fit: with four items, auto-fit
+		   fits three across at mid widths and orphans the fourth. */
+		grid-template-columns: repeat(2, 1fr);
+		gap: var(--sp-8) var(--sp-6);
+	}
+
+	@media (min-width: 48rem) {
+		.stats-grid {
+			grid-template-columns: repeat(4, 1fr);
+		}
+	}
+
+	.stat-figure {
+		display: flex;
+		align-items: baseline;
+		gap: 0.1em;
+		font-size: var(--step-3);
+		font-weight: 600;
+		letter-spacing: var(--tracking-display);
+		line-height: 1;
+		color: var(--text);
+	}
+
+	.stat-value {
+		/* Tabular figures plus a reserved min-width keep the row from
+		   jittering while the number counts up. */
+		font-variant-numeric: tabular-nums;
+		display: inline-block;
+		text-align: right;
+	}
+
+	.stat-suffix {
+		font-size: 0.5em;
+		font-family: var(--font-mono);
+		font-weight: 500;
+		color: var(--accent);
+		letter-spacing: 0;
+	}
+
+	.stat-label {
+		margin-top: var(--sp-3);
+		font-size: var(--step--1);
+		color: var(--text-muted);
+		text-wrap: balance;
+	}
+</style>

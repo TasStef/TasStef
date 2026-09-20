@@ -1,7 +1,7 @@
 /*
  * Design tokens. This is the single file to edit to change the whole look.
  *
- * Direction: dark glow + depth. Near-black base, one radial lime glow,
+ * Direction: dark glow + depth. Near-black base, a blue/purple glow pair,
  * fine noise grain, gradient hairline borders, subtly glassy surfaces.
  */
 
@@ -9,27 +9,30 @@
 	color-scheme: dark;
 
 	/* ---- Surface ---- */
-	--bg: #08090b; /* near-black, very slightly blue-shifted (never pure #000) */
-	--bg-raised: #0d0f12;
+	--bg: #06070c; /* near-black, blue-shifted (never pure #000) */
+	--bg-raised: #0b0d14;
 	--surface: rgba(255, 255, 255, 0.025);
 	--surface-hover: rgba(255, 255, 255, 0.045);
 	--border: rgba(255, 255, 255, 0.08);
 	--border-strong: rgba(255, 255, 255, 0.16);
 
 	/* ---- Text ---- */
-	--text: #e8eaed; /* 16.5:1 on --bg */
-	--text-muted: #8b9199; /* 6.3:1 on --bg  */
-	--text-faint: #5c626b; /* decorative only, never body copy */
+	--text: #e9eaf2;
+	--text-muted: #8d93a8;
+	--text-faint: #5f657a; /* decorative only, never body copy */
 
-	/* ---- Accent: acid lime ----
-	 * NOTE: this value is tuned for a dark background and is deliberately
-	 * redefined for light mode below. Do not reuse one lime across both
-	 * schemes; bright lime on white fails contrast badly.
+	/* ---- Accent: electric blue/purple ----
+	 * NOTE: tuned for a dark background and deliberately redefined for
+	 * light mode below. Do not reuse one value across both schemes.
+	 * --accent-2 is a second hue used ONLY in gradients, never for text,
+	 * so it is not held to a text contrast ratio.
 	 */
-	--accent: #c6f24e; /* 15.7:1 on --bg */
-	--accent-dim: #9fc93b;
-	--accent-ink: #08090b; /* text placed ON an accent fill */
-	--glow: rgba(198, 242, 78, 0.1);
+	--accent: #8f9dfa;
+	--accent-2: #a77df0;
+	--accent-dim: #6f7fe0;
+	--accent-ink: #06070c; /* text placed ON an accent fill */
+	--glow: rgba(143, 157, 250, 0.16);
+	--glow-2: rgba(167, 125, 240, 0.13);
 	--grain-opacity: 0.032;
 
 	/* ---- Type ---- */
@@ -90,16 +93,18 @@
 		--border: rgba(0, 0, 0, 0.1);
 		--border-strong: rgba(0, 0, 0, 0.18);
 
-		--text: #14161a;
-		--text-muted: #565c66;
+		--text: #14151c;
+		--text-muted: #555a6b;
 		--text-faint: #858b94;
 
-		/* Darkened, desaturated lime. ~5.9:1 on --bg, unlike the bright
-		 * value above which would sit around 1.2:1 here. */
-		--accent: #4a6b0a;
-		--accent-dim: #3c5708;
+		/* Deep indigo/violet. The bright dark-mode accent would sit
+		 * around 2.6:1 here, so light mode gets its own values. */
+		--accent: #4038c4;
+		--accent-2: #7b3fc9;
+		--accent-dim: #322b9e;
 		--accent-ink: #ffffff;
-		--glow: rgba(120, 170, 20, 0.1);
+		--glow: rgba(64, 56, 196, 0.1);
+		--glow-2: rgba(123, 63, 201, 0.08);
 		--grain-opacity: 0.02;
 	}
 }
