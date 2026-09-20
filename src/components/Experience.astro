@@ -43,30 +43,6 @@ for (const role of roles) {
 	}
 }
 
-const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-
-/** "Mar 2024" to an absolute month count, for duration maths. */
-function toMonths(label: string): number | null {
-	const m = label.trim().toLowerCase().match(/^([a-z]{3})[a-z]*\s+(\d{4})$/);
-	if (!m) return null;
-	const idx = MONTHS.indexOf(m[1]);
-	return idx === -1 ? null : Number(m[2]) * 12 + idx;
-}
-
-function tenure(start: string, end: string | null): string | null {
-	const from = toMonths(start);
-	const now = new Date();
-	const to = end ? toMonths(end) : now.getFullYear() * 12 + now.getMonth();
-	if (from === null || to === null || to < from) return null;
-
-	const total = to - from;
-	const years = Math.floor(total / 12);
-	const months = total % 12;
-	const parts: string[] = [];
-	if (years) parts.push(`${years} yr${years > 1 ? 's' : ''}`);
-	if (months) parts.push(`${months} mo${months > 1 ? 's' : ''}`);
-	return parts.join(' ') || null;
-}
 ---
 
 <Section id="experience" label="03 / Experience" heading="Where I've worked">
@@ -74,10 +50,6 @@ function tenure(start: string, end: string | null): string | null {
 		{
 			stints.map((stint, i) => {
 				const multi = stint.roles.length > 1;
-				// Shown only for grouped stints, where a long tenure across
-				// several roles is the point. On a single short role it would
-				// just draw the eye to the shortness.
-				const span = multi ? tenure(stint.start, stint.end) : null;
 
 				return (
 					<li class="stint reveal hairline" style={`--reveal-delay: ${i * 70}ms`}>
@@ -85,7 +57,6 @@ function tenure(start: string, end: string | null): string | null {
 							<p class="label stint-dates">
 								{stint.start} — {stint.end ?? 'Present'}
 							</p>
-							{span && <p class="stint-tenure">{span}</p>}
 							{!stint.end && <span class="badge">Current</span>}
 						</div>
 
@@ -153,12 +124,6 @@ function tenure(start: string, end: string | null): string | null {
 
 	.stint-dates {
 		white-space: nowrap;
-	}
-
-	.stint-tenure {
-		font-family: var(--font-mono);
-		font-size: var(--step--1);
-		color: var(--text-faint);
 	}
 
 	.badge {
