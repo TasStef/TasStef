@@ -61,12 +61,45 @@ for (const role of roles) {
 						</div>
 
 						<div class="stint-body">
-							<h3 class="stint-company">{stint.company}</h3>
-							<p class="stint-context">
-								{stint.context && <span>{stint.context} · </span>}
-								{stint.location}
+							<div class="stint-head">
+								<div class="stint-titles">
+									<h3 class="stint-company">{stint.company}</h3>
+									<p class="stint-context">
+										{stint.context && <span>{stint.context} · </span>}
+										{stint.location}
+									</p>
+								</div>
+								{/*
+								  Hidden until the script un-hides it. Without JS there is
+								  no control and nothing is collapsed, so the content is
+								  simply all visible rather than stuck behind a dead button.
+								*/}
+								<button class="stint-toggle" type="button" hidden aria-expanded="true">
+									<span class="visually-hidden">Show details for {stint.company}</span>
+									<svg
+										class="chev"
+										viewBox="0 0 16 16"
+										width="14"
+										height="14"
+										aria-hidden="true"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="1.8"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									>
+										<path d="m4 6 4 4 4-4" />
+									</svg>
+								</button>
+							</div>
+
+							{/* Stands in for the hidden detail while collapsed. */}
+							<p class="stint-preview">
+								{stint.roles.map((r) => r.data.title).join(' · ')}
 							</p>
 
+							<div class="stint-content">
+								<div class="stint-content-inner">
 							<ol class:list={['roles', { progression: multi }]}>
 								{stint.roles.map((role) => (
 									<li class="role">
@@ -86,6 +119,8 @@ for (const role of roles) {
 									</li>
 								))}
 							</ol>
+								</div>
+							</div>
 						</div>
 					</li>
 				);
@@ -136,6 +171,81 @@ for (const role of roles) {
 		background: color-mix(in srgb, var(--accent) 10%, transparent);
 		padding: 2px var(--sp-2);
 		border-radius: 100px;
+	}
+
+	.stint-head {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: var(--sp-4);
+	}
+
+	/* Only a pointer once the script has made the header do something. */
+	:global(:root.has-collapse) .stint-head {
+		cursor: pointer;
+	}
+
+	.stint-toggle {
+		flex: none;
+		display: grid;
+		place-items: center;
+		width: 28px;
+		height: 28px;
+		padding: 0;
+		border: 1px solid var(--border);
+		border-radius: 50%;
+		background: transparent;
+		color: var(--text-muted);
+		cursor: pointer;
+		transition:
+			color var(--dur-fast) var(--ease-out),
+			border-color var(--dur-fast) var(--ease-out);
+	}
+
+	.stint-toggle:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+	}
+
+	.chev {
+		transition: transform var(--dur-base) var(--ease-out);
+	}
+
+	/* Points down when there is more to see, up when expanded. */
+	.stint:not(.is-collapsed) .chev {
+		transform: rotate(180deg);
+	}
+
+	/* Replaces the detail while collapsed, so a closed card still says
+	   which roles it holds rather than just a company name. */
+	.stint-preview {
+		display: none;
+		margin-top: var(--sp-3);
+		font-size: var(--step--1);
+		color: var(--text-muted);
+	}
+
+	.stint.is-collapsed .stint-preview {
+		display: block;
+	}
+
+	/* 0fr to 1fr animates to the content's natural height, which a
+	   max-height transition cannot do without a magic number. */
+	.stint-content {
+		display: grid;
+		grid-template-rows: 1fr;
+	}
+
+	:global(:root.has-collapse) .stint-content {
+		transition: grid-template-rows var(--dur-base) var(--ease-out);
+	}
+
+	.stint.is-collapsed .stint-content {
+		grid-template-rows: 0fr;
+	}
+
+	.stint-content-inner {
+		overflow: hidden;
 	}
 
 	.stint-company {

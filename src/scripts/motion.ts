@@ -192,8 +192,57 @@ export function initCounters() {
 	}
 }
 
+/* ------------------------------------------------------------------ */
+/* Collapsible experience cards                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Collapses each experience card behind a toggle.
+ *
+ * Progressive enhancement, the same contract as everything else here: the
+ * page ships fully expanded with the toggle button hidden. This function
+ * un-hides the control and collapses the cards. If it never runs, every
+ * card is simply open and there is no dead button to click.
+ */
+export function initCollapsibles() {
+	const stints = document.querySelectorAll<HTMLElement>('.stint');
+	if (!stints.length) return;
+
+	document.documentElement.classList.add('has-collapse');
+
+	stints.forEach((stint, i) => {
+		const btn = stint.querySelector<HTMLButtonElement>('.stint-toggle');
+		const head = stint.querySelector<HTMLElement>('.stint-head');
+		const content = stint.querySelector<HTMLElement>('.stint-content');
+		if (!btn || !head || !content) return;
+
+		if (!content.id) content.id = `stint-content-${i}`;
+		btn.setAttribute('aria-controls', content.id);
+		btn.hidden = false;
+
+		const setOpen = (open: boolean) => {
+			stint.classList.toggle('is-collapsed', !open);
+			btn.setAttribute('aria-expanded', String(open));
+		};
+
+		setOpen(false);
+
+		const toggle = () => setOpen(stint.classList.contains('is-collapsed'));
+
+		// The button is the accessible control; the header is a larger hit
+		// area for the same action. stopPropagation keeps a click on the
+		// button from also firing the header handler and cancelling itself.
+		btn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			toggle();
+		});
+		head.addEventListener('click', toggle);
+	});
+}
+
 export function initMotion() {
 	initReveal();
 	initScramble();
 	initCounters();
+	initCollapsibles();
 }
