@@ -5,35 +5,120 @@ import Section from './Section.astro';
 const roles = (await getCollection('experience')).sort(
 	(a, b) => a.data.order - b.data.order
 );
+
+type Role = (typeof roles)[number];
+
+interface Stint {
+	company: string;
+	context?: string;
+	location: string;
+	start: string;
+	end: string | null;
+	roles: Role[];
+}
+
+/**
+ * Consecutive roles at the same company collapse into one stint.
+ *
+ * Grouping is derived here rather than stored, so each role stays one file
+ * in src/data/experience/ and adding or reordering one needs no changes to
+ * this component.
+ */
+const stints: Stint[] = [];
+for (const role of roles) {
+	const current = stints.at(-1);
+	if (current && current.company === role.data.company) {
+		current.roles.push(role);
+		// Entries run newest first, so each later one pushes the start back.
+		current.start = role.data.start;
+	} else {
+		stints.push({
+			company: role.data.company,
+			context: role.data.context,
+			location: role.data.location,
+			start: role.data.start,
+			end: role.data.end,
+			roles: [role],
+		});
+	}
+}
+
+const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+
+/** "Mar 2024" to an absolute month count, for duration maths. */
+function toMonths(label: string): number | null {
+	const m = label.trim().toLowerCase().match(/^([a-z]{3})[a-z]*\s+(\d{4})$/);
+	if (!m) return null;
+	const idx = MONTHS.indexOf(m[1]);
+	return idx === -1 ? null : Number(m[2]) * 12 + idx;
+}
+
+function tenure(start: string, end: string | null): string | null {
+	const from = toMonths(start);
+	const now = new Date();
+	const to = end ? toMonths(end) : now.getFullYear() * 12 + now.getMonth();
+	if (from === null || to === null || to < from) return null;
+
+	const total = to - from;
+	const years = Math.floor(total / 12);
+	const months = total % 12;
+	const parts: string[] = [];
+	if (years) parts.push(`${years} yr${years > 1 ? 's' : ''}`);
+	if (months) parts.push(`${months} mo${months > 1 ? 's' : ''}`);
+	return parts.join(' ') || null;
+}
 ---
 
 <Section id="experience" label="03 / Experience" heading="Where I've worked">
 	<ol class="timeline">
 		{
-			roles.map((role, i) => (
-				<li class="role reveal hairline" style={`--reveal-delay: ${i * 60}ms`}>
-					<div class="role-meta">
-						<p class="label role-dates">
-							{role.data.start} — {role.data.end ?? 'Present'}
-						</p>
-						{!role.data.end && <span class="badge">Current</span>}
-					</div>
+			stints.map((stint, i) => {
+				const multi = stint.roles.length > 1;
+				// Shown only for grouped stints, where a long tenure across
+				// several roles is the point. On a single short role it would
+				// just draw the eye to the shortness.
+				const span = multi ? tenure(stint.start, stint.end) : null;
 
-					<div class="role-body">
-						<h3 class="role-title">{role.data.title}</h3>
-						<p class="role-company">
-							{role.data.company}
-							{role.data.context && <span class="role-context"> · {role.data.context}</span>}
-							<span class="role-context"> · {role.data.location}</span>
-						</p>
-						<ul class="highlights">
-							{role.data.highlights.map((h) => (
-								<li>{h}</li>
-							))}
-						</ul>
-					</div>
-				</li>
-			))
+				return (
+					<li class="stint reveal hairline" style={`--reveal-delay: ${i * 70}ms`}>
+						<div class="stint-meta">
+							<p class="label stint-dates">
+								{stint.start} — {stint.end ?? 'Present'}
+							</p>
+							{span && <p class="stint-tenure">{span}</p>}
+							{!stint.end && <span class="badge">Current</span>}
+						</div>
+
+						<div class="stint-body">
+							<h3 class="stint-company">{stint.company}</h3>
+							<p class="stint-context">
+								{stint.context && <span>{stint.context} · </span>}
+								{stint.location}
+							</p>
+
+							<ol class:list={['roles', { progression: multi }]}>
+								{stint.roles.map((role) => (
+									<li class="role">
+										<div class="role-head">
+											<h4 class="role-title">{role.data.title}</h4>
+											{multi && (
+												<p class="label role-dates">
+													{role.data.start} — {role.data.end ?? 'Present'}
+												</p>
+											)}
+										</div>
+										<ul class="highlights">
+											{role.data.highlights.map((h) => (
+												<li>{h}</li>
+											))}
+										</ul>
+									</li>
+								))}
+							</ol>
+						</div>
+					</li>
+				);
+			})
 		}
 	</ol>
 </Section>
@@ -46,7 +131,7 @@ const roles = (await getCollection('experience')).sort(
 		margin: 0;
 	}
 
-	.role {
+	.stint {
 		display: grid;
 		grid-template-columns: minmax(10rem, 14rem) 1fr;
 		gap: var(--sp-6);
@@ -55,19 +140,25 @@ const roles = (await getCollection('experience')).sort(
 		transition: background var(--dur-base) var(--ease-out);
 	}
 
-	.role:hover {
+	.stint:hover {
 		background: var(--surface-hover);
 	}
 
-	.role-meta {
+	.stint-meta {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
 		gap: var(--sp-2);
 	}
 
-	.role-dates {
+	.stint-dates {
 		white-space: nowrap;
+	}
+
+	.stint-tenure {
+		font-family: var(--font-mono);
+		font-size: var(--step--1);
+		color: var(--text-faint);
 	}
 
 	.badge {
@@ -82,23 +173,73 @@ const roles = (await getCollection('experience')).sort(
 		border-radius: 100px;
 	}
 
-	.role-title {
+	.stint-company {
 		font-size: var(--step-1);
 		letter-spacing: -0.015em;
 	}
 
-	.role-company {
+	.stint-context {
 		color: var(--text-muted);
 		font-size: var(--step--1);
 		margin-top: var(--sp-1);
 	}
 
-	.role-context {
-		color: var(--text-faint);
+	.roles {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-5, 1.25rem);
+		margin-top: var(--sp-4);
+	}
+
+	/* Only grouped stints get the connector: it exists to show one role
+	   leading to the next, which is meaningless with a single role. */
+	.roles.progression .role {
+		position: relative;
+		padding-left: var(--sp-6);
+	}
+
+	.roles.progression .role::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0.42em;
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: var(--accent);
+	}
+
+	.roles.progression .role::after {
+		content: '';
+		position: absolute;
+		left: 3px;
+		top: 1.3em;
+		bottom: calc(-1 * var(--sp-6));
+		width: 1px;
+		background: var(--border-strong);
+	}
+
+	.roles.progression .role:last-child::after {
+		display: none;
+	}
+
+	/* Title and dates share a line; stacked, they cost three extra lines
+	   across the grouped stint and made the section taller than before. */
+	.role-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: var(--sp-3);
+	}
+
+	.role-title {
+		font-size: var(--step-0);
+		font-weight: 550;
+		letter-spacing: -0.01em;
 	}
 
 	.highlights {
-		margin-top: var(--sp-4);
+		margin-top: var(--sp-3);
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp-2);
@@ -122,14 +263,15 @@ const roles = (await getCollection('experience')).sort(
 	}
 
 	@media (max-width: 40rem) {
-		.role {
+		.stint {
 			grid-template-columns: 1fr;
 			gap: var(--sp-4);
 		}
 
-		.role-meta {
+		.stint-meta {
 			flex-direction: row;
 			align-items: center;
+			flex-wrap: wrap;
 			gap: var(--sp-3);
 		}
 	}
