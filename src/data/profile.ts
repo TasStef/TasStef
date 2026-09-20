@@ -4,6 +4,12 @@ export interface SocialLink {
 	handle: string;
 }
 
+export interface Education {
+	institution: string;
+	qualification: string;
+	location: string;
+}
+
 export interface Profile {
 	name: string;
 	title: string;
@@ -15,6 +21,8 @@ export interface Profile {
 	intro: string;
 	email: string;
 	socials: SocialLink[];
+	education: Education[];
+	interests: string[];
 }
 
 // TODO(content): the pitch and intro are drafted from the CV. Rewrite in
@@ -28,6 +36,19 @@ export const profile: Profile = {
 	intro:
 		'Full stack software engineer working across .NET and TypeScript, currently at Tipalti. Four years in fintech building payment and treasury systems where correctness is not negotiable. I like owning a feature end to end, from data model to deployment.',
 	email: 'tasos.stefanidis@outlook.com',
+	education: [
+		{
+			institution: 'University of Thessaly',
+			qualification: 'MSc Electrical & Computer Engineering',
+			location: 'Greece',
+		},
+		{
+			institution: 'University of East London',
+			qualification: 'MA Creative Music Production',
+			location: 'London, UK',
+		},
+	],
+	interests: ['Espresso culture', 'Mixed martial arts', 'Chess'],
 	socials: [
 		{
 			label: 'GitHub',

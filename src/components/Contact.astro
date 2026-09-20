@@ -1,6 +1,7 @@
 ---
 import Section from './Section.astro';
 import { profile } from '../data/profile';
+import ExternalIcon from './ExternalIcon.astro';
 
 // No contact form: GitHub Pages serves static files and cannot process a
 // POST. A form would mean a third-party dependency for very little gain.
@@ -8,7 +9,7 @@ import { profile } from '../data/profile';
 const [user, domain] = profile.email.split('@');
 ---
 
-<Section id="contact" label="04 / Contact" heading="Get in touch">
+<Section id="contact" label="05 / Contact" heading="Get in touch">
 	<div class="contact reveal">
 		<p class="contact-lead">
 			Open to interesting problems, particularly in fintech and developer tooling.
@@ -29,7 +30,7 @@ const [user, domain] = profile.email.split('@');
 						<span class="label">{s.label}</span>
 						<a class="channel-value" href={s.href} target="_blank" rel="me noopener noreferrer">
 							{s.handle}
-							<span class="arrow" aria-hidden="true">↗</span>
+							<ExternalIcon />
 							<span class="visually-hidden">(opens in a new tab)</span>
 						</a>
 					</li>
@@ -88,9 +89,9 @@ const [user, domain] = profile.email.split('@');
 		color: var(--accent);
 	}
 
-	.arrow {
+	.channel-value :global(.external-icon) {
 		margin-left: var(--sp-2);
-		font-size: 0.75em;
-		color: var(--text-faint);
+		vertical-align: baseline;
+		display: inline-block;
 	}
 </style>

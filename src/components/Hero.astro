@@ -1,6 +1,5 @@
 ---
 import { profile } from '../data/profile';
-import ExternalIcon from './ExternalIcon.astro';
 ---
 
 <header class="hero">
@@ -13,27 +12,11 @@ import ExternalIcon from './ExternalIcon.astro';
 			{profile.pitch}
 		</p>
 
-		<p class="hero-intro enter" style="--enter-delay: 180ms">
-			{profile.intro}
-		</p>
-
-		<nav class="hero-links enter" aria-label="Primary" style="--enter-delay: 240ms">
+		<nav class="hero-links enter" aria-label="Primary" style="--enter-delay: 180ms">
 			<a class="btn btn-primary" href="#projects">View work</a>
+			<a class="btn" href="#experience">Experience</a>
+			<a class="btn" href="#about">About me</a>
 			<a class="btn" href={`mailto:${profile.email}`}>Get in touch</a>
-			{
-				profile.socials.map((s) => (
-					<a
-						class="btn btn-external"
-						href={s.href}
-						rel="me noopener noreferrer"
-						target="_blank"
-					>
-						{s.label}
-						<ExternalIcon />
-						<span class="visually-hidden">(opens in a new tab)</span>
-					</a>
-				))
-			}
 		</nav>
 	</div>
 </header>
@@ -78,12 +61,6 @@ import ExternalIcon from './ExternalIcon.astro';
 		line-height: 1.2;
 	}
 
-	.hero-intro {
-		color: var(--text-muted);
-		max-width: var(--measure);
-		font-size: var(--step-1);
-	}
-
 	.hero-links {
 		display: flex;
 		flex-wrap: wrap;
@@ -124,7 +101,4 @@ import ExternalIcon from './ExternalIcon.astro';
 		border-color: var(--accent-dim);
 	}
 
-	.btn-external {
-		gap: var(--sp-3);
-	}
 </style>

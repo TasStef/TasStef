@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import ExternalIcon from './ExternalIcon.astro';
 
 interface Props {
 	project: CollectionEntry<'projects'>;
@@ -31,7 +32,7 @@ const hasLinks = Boolean(live || repo);
 			primary ? (
 				<a href={primary} target="_blank" rel="noopener noreferrer">
 					{title}
-					<span class="arrow" aria-hidden="true">↗</span>
+					<ExternalIcon />
 					<span class="visually-hidden">(opens in a new tab)</span>
 				</a>
 			) : (
@@ -118,15 +119,8 @@ const hasLinks = Boolean(live || repo);
 		color: var(--accent);
 	}
 
-	.arrow {
-		font-size: 0.7em;
-		color: var(--text-faint);
-		transition: transform var(--dur-fast) var(--ease-out);
-	}
-
-	.card-title a:hover .arrow {
-		transform: translate(2px, -2px);
-		color: var(--accent);
+	.card-title a :global(.external-icon) {
+		flex: none;
 	}
 
 	.card-blurb {

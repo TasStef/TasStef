@@ -8,7 +8,7 @@ const projects = (await getCollection('projects')).sort(
 );
 ---
 
-<Section id="projects" label="01 / Selected work" heading="Things I've built">
+<Section id="projects" label="02 / Selected work" heading="Things I've built">
 	<div class="grid">
 		{projects.map((project, i) => <ProjectCard project={project} index={i} />)}
 	</div>

@@ -1,0 +1,97 @@
+---
+import Section from './Section.astro';
+import { profile } from '../data/profile';
+---
+
+<Section id="about" label="01 / About" heading="About me">
+	<div class="about">
+		<p class="about-lead reveal">{profile.intro}</p>
+
+		<div class="about-meta">
+			<div class="meta-block reveal" style="--reveal-delay: 80ms">
+				<h3 class="label meta-title">Education</h3>
+				<ul class="meta-list">
+					{
+						profile.education.map((e) => (
+							<li class="edu">
+								<span class="edu-qual">{e.qualification}</span>
+								<span class="edu-inst">
+									{e.institution} · {e.location}
+								</span>
+							</li>
+						))
+					}
+				</ul>
+			</div>
+
+			<div class="meta-block reveal" style="--reveal-delay: 160ms">
+				<h3 class="label meta-title">Outside work</h3>
+				<ul class="tags">
+					{profile.interests.map((i) => <li>{i}</li>)}
+				</ul>
+			</div>
+		</div>
+	</div>
+</Section>
+
+<style>
+	.about {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-12);
+	}
+
+	.about-lead {
+		font-size: var(--step-1);
+		color: var(--text-muted);
+		max-width: var(--measure);
+		text-wrap: pretty;
+	}
+
+	.about-meta {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+		gap: var(--sp-8);
+	}
+
+	.meta-title {
+		color: var(--accent);
+		margin-bottom: var(--sp-4);
+	}
+
+	.meta-list {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-4);
+	}
+
+	.edu {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-1);
+	}
+
+	.edu-qual {
+		color: var(--text);
+	}
+
+	.edu-inst {
+		font-size: var(--step--1);
+		color: var(--text-muted);
+	}
+
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--sp-2);
+	}
+
+	.tags li {
+		font-size: var(--step--1);
+		color: var(--text-muted);
+		border: 1px solid var(--border);
+		background: var(--surface);
+		border-radius: var(--radius-sm);
+		padding: var(--sp-1) var(--sp-3);
+	}
+</style>
