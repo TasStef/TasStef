@@ -10,6 +10,6 @@ export interface Stat {
 export const stats: Stat[] = [
 	{ value: 6, suffix: 'yrs', label: 'Shipping production systems' },
 	{ value: 30, suffix: '%', label: 'Less test suite flakiness' },
-	{ value: 35, suffix: 'min', label: 'Cut from CI pipeline runtime' },
+	{ value: 90, suffix: '%', label: 'Faster client onboarding' },
 	{ value: 25, suffix: '%', label: 'Fewer support tickets' },
 ];

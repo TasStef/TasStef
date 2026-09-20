@@ -6,6 +6,7 @@ start: Mar 2024
 end: Mar 2026
 order: 2
 highlights:
+  - Architected and delivered a self-serve accounting integration (Xero, QuickBooks), evaluating integration patterns and client workflows to cut client onboarding time by 90% and scale integrated accounts 10x.
   - Built responsive Angular UIs and scalable .NET backend services supporting core business logic and user workflows.
   - Designed complex queries and CRUD operations across three database systems (MySQL, SQL Server, DynamoDB), ensuring data integrity and performance.
   - Led POCs for client-side PDF generation and feature flags, driving new technical capability into the product.
