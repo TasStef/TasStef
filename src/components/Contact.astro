@@ -54,7 +54,10 @@ const [user, domain] = profile.email.split('@');
 
 	.channels {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+		/* 17rem, not 15rem: at 15rem three columns survive down to widths
+		   where the email no longer fits on one line and breaks mid-domain.
+		   The wider minimum drops to two columns before that happens. */
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
 		gap: var(--sp-4);
 	}
 
@@ -72,11 +75,12 @@ const [user, domain] = profile.email.split('@');
 	}
 
 	.channel-value {
-		display: inline-flex;
-		align-items: baseline;
-		gap: var(--sp-1);
+		/* Deliberately NOT a flex container. The email is split into three
+		   spans to deter scrapers; as flex items those spans cannot wrap as
+		   one text run, which broke the address mid-word. In normal inline
+		   flow they are invisible to text layout. */
 		font-size: var(--step-0);
-		word-break: break-word;
+		overflow-wrap: anywhere;
 		transition: color var(--dur-fast) var(--ease-out);
 	}
 
@@ -85,6 +89,7 @@ const [user, domain] = profile.email.split('@');
 	}
 
 	.arrow {
+		margin-left: var(--sp-2);
 		font-size: 0.75em;
 		color: var(--text-faint);
 	}
