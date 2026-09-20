@@ -27,7 +27,12 @@ body {
 	-webkit-font-smoothing: antialiased;
 	text-rendering: optimizeLegibility;
 	min-height: 100svh;
+	/* The decorative glow is deliberately wider than the viewport. `hidden`
+	 * clips it but still reports an inflated scrollWidth and establishes a
+	 * scroll container; `clip` does neither. Declared second so browsers
+	 * without `clip` keep the `hidden` fallback. */
 	overflow-x: hidden;
+	overflow-x: clip;
 }
 
 img,

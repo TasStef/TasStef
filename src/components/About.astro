@@ -1,5 +1,6 @@
 ---
 import Section from './Section.astro';
+import InterestIcon from './InterestIcon.astro';
 import { profile } from '../data/profile';
 ---
 
@@ -7,29 +8,37 @@ import { profile } from '../data/profile';
 	<div class="about">
 		<p class="about-lead reveal">{profile.intro}</p>
 
-		<div class="about-meta">
-			<div class="meta-block reveal" style="--reveal-delay: 80ms">
-				<h3 class="label meta-title">Education</h3>
-				<ul class="meta-list">
-					{
-						profile.education.map((e) => (
-							<li class="edu">
-								<span class="edu-qual">{e.qualification}</span>
-								<span class="edu-inst">
-									{e.institution} · {e.location}
-								</span>
-							</li>
-						))
-					}
-				</ul>
-			</div>
+		<div class="block reveal" style="--reveal-delay: 60ms">
+			<h3 class="label block-title">Education</h3>
+			<ul class="edu-list">
+				{
+					profile.education.map((e) => (
+						<li class="edu">
+							<span class="edu-qual">{e.qualification}</span>
+							<span class="edu-inst">
+								{e.institution} · {e.location}
+							</span>
+						</li>
+					))
+				}
+			</ul>
+		</div>
 
-			<div class="meta-block reveal" style="--reveal-delay: 160ms">
-				<h3 class="label meta-title">Outside work</h3>
-				<ul class="tags">
-					{profile.interests.map((i) => <li>{i}</li>)}
-				</ul>
-			</div>
+		<div class="block reveal" style="--reveal-delay: 120ms">
+			<h3 class="label block-title">Outside work</h3>
+			<ul class="interests">
+				{
+					profile.interests.map((i) => (
+						<li class="interest hairline">
+							<InterestIcon name={i.icon} />
+							<div class="interest-text">
+								<span class="interest-name">{i.name}</span>
+								<span class="interest-note">{i.note}</span>
+							</div>
+						</li>
+					))
+				}
+			</ul>
 		</div>
 	</div>
 </Section>
@@ -48,21 +57,16 @@ import { profile } from '../data/profile';
 		text-wrap: pretty;
 	}
 
-	.about-meta {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-		gap: var(--sp-8);
-	}
-
-	.meta-title {
+	.block-title {
 		color: var(--accent);
 		margin-bottom: var(--sp-4);
 	}
 
-	.meta-list {
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp-4);
+	/* Education: two degrees side by side once there is room. */
+	.edu-list {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+		gap: var(--sp-6);
 	}
 
 	.edu {
@@ -80,18 +84,45 @@ import { profile } from '../data/profile';
 		color: var(--text-muted);
 	}
 
-	.tags {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--sp-2);
+	/* Outside work: a card each, so the block carries some character
+	   instead of reading as three nouns in pills. */
+	.interests {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+		gap: var(--sp-4);
 	}
 
-	.tags li {
+	.interest {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--sp-4);
+		padding: var(--sp-5, 1.25rem) var(--sp-6);
+		background: var(--surface);
+		transition:
+			background var(--dur-base) var(--ease-out),
+			transform var(--dur-base) var(--ease-out);
+	}
+
+	.interest:hover {
+		background: var(--surface-hover);
+		transform: translateY(-2px);
+	}
+
+	.interest-text {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-1);
+	}
+
+	.interest-name {
+		color: var(--text);
+		font-size: var(--step-0);
+		font-weight: 550;
+	}
+
+	.interest-note {
 		font-size: var(--step--1);
 		color: var(--text-muted);
-		border: 1px solid var(--border);
-		background: var(--surface);
-		border-radius: var(--radius-sm);
-		padding: var(--sp-1) var(--sp-3);
+		text-wrap: pretty;
 	}
 </style>

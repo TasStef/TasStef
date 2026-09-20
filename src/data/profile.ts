@@ -4,6 +4,14 @@ export interface SocialLink {
 	handle: string;
 }
 
+export interface Interest {
+	name: string;
+	icon: 'espresso' | 'gloves' | 'chess';
+	/** One short line. This is what gives the block character; the icon
+	 *  alone just makes it prettier. */
+	note: string;
+}
+
 export interface Education {
 	institution: string;
 	qualification: string;
@@ -23,7 +31,7 @@ export interface Profile {
 	email: string;
 	socials: SocialLink[];
 	education: Education[];
-	interests: string[];
+	interests: Interest[];
 }
 
 // TODO(content): the pitch and intro are drafted from the CV. Rewrite in
@@ -50,7 +58,26 @@ export const profile: Profile = {
 			location: 'London, UK',
 		},
 	],
-	interests: ['Espresso culture', 'Mixed martial arts', 'Chess'],
+	// TODO(content): the notes below are my drafts, not Tasos's words.
+	// They are attitudes rather than invented facts, but they should still
+	// be replaced with his own before this ships.
+	interests: [
+		{
+			name: 'Espresso',
+			icon: 'espresso',
+			note: 'Always chasing a better shot than yesterday.',
+		},
+		{
+			name: 'Mixed martial arts',
+			icon: 'gloves',
+			note: 'Reliably humbling. Good practice for code review.',
+		},
+		{
+			name: 'Chess',
+			icon: 'chess',
+			note: 'Much better at openings than endgames.',
+		},
+	],
 	socials: [
 		{
 			label: 'GitHub',
