@@ -1,0 +1,122 @@
+/*
+ * TEMPORARY — theme lab only. Delete this file and src/pages/theme-lab.astro
+ * once a direction is chosen; the winning values move into tokens.css.
+ *
+ * Each block redefines the FULL token set rather than just the accent,
+ * because a partial override would let the prefers-color-scheme block in
+ * tokens.css leak through for whichever scheme the OS is set to.
+ */
+
+/* ---------- A. Lime (current) ---------- */
+:root[data-theme='lime'] {
+	color-scheme: dark;
+	--bg: #08090b;
+	--bg-raised: #0d0f12;
+	--surface: rgba(255, 255, 255, 0.025);
+	--surface-hover: rgba(255, 255, 255, 0.045);
+	--border: rgba(255, 255, 255, 0.08);
+	--border-strong: rgba(255, 255, 255, 0.16);
+	--text: #e8eaed;
+	--text-muted: #8b9199;
+	--text-faint: #5c626b;
+	--accent: #c6f24e;
+	--accent-dim: #9fc93b;
+	--accent-ink: #08090b;
+	--glow: rgba(198, 242, 78, 0.1);
+	--grain-opacity: 0.032;
+}
+
+/* ---------- B. Ion: periwinkle, the safe technical accent ---------- */
+:root[data-theme='ion'] {
+	color-scheme: dark;
+	--bg: #07080c;
+	--bg-raised: #0c0e15;
+	--surface: rgba(255, 255, 255, 0.028);
+	--surface-hover: rgba(255, 255, 255, 0.05);
+	--border: rgba(255, 255, 255, 0.09);
+	--border-strong: rgba(255, 255, 255, 0.18);
+	--text: #e9eaf0;
+	--text-muted: #8d92a3;
+	--text-faint: #5e6374;
+	--accent: #9aa8ff;
+	--accent-dim: #7d8cf0;
+	--accent-ink: #07080c;
+	--glow: rgba(154, 168, 255, 0.13);
+	--grain-opacity: 0.03;
+}
+
+/* ---------- C. Ember: warm amber, unusual for an engineer site ---------- */
+:root[data-theme='ember'] {
+	color-scheme: dark;
+	--bg: #0b0907;
+	--bg-raised: #120f0c;
+	--surface: rgba(255, 255, 255, 0.028);
+	--surface-hover: rgba(255, 255, 255, 0.05);
+	--border: rgba(255, 255, 255, 0.09);
+	--border-strong: rgba(255, 255, 255, 0.18);
+	--text: #efe9e3;
+	--text-muted: #9c928a;
+	--text-faint: #6b635c;
+	--accent: #ffa64d;
+	--accent-dim: #e08c33;
+	--accent-ink: #0b0907;
+	--glow: rgba(255, 166, 77, 0.12);
+	--grain-opacity: 0.034;
+}
+
+/* ---------- D. Graphite: no hue at all, contrast does the work ---------- */
+:root[data-theme='graphite'] {
+	color-scheme: dark;
+	--bg: #0a0a0a;
+	--bg-raised: #101010;
+	--surface: rgba(255, 255, 255, 0.03);
+	--surface-hover: rgba(255, 255, 255, 0.055);
+	--border: rgba(255, 255, 255, 0.1);
+	--border-strong: rgba(255, 255, 255, 0.2);
+	--text: #ededed;
+	--text-muted: #909090;
+	--text-faint: #616161;
+	--accent: #fafafa;
+	--accent-dim: #d4d4d4;
+	--accent-ink: #0a0a0a;
+	--glow: rgba(255, 255, 255, 0.055);
+	--grain-opacity: 0.038;
+}
+
+/* ---------- E. Daylight: warm light-first, not another dark dev site ---------- */
+:root[data-theme='daylight'] {
+	color-scheme: light;
+	--bg: #faf8f4;
+	--bg-raised: #ffffff;
+	--surface: rgba(28, 22, 14, 0.025);
+	--surface-hover: rgba(28, 22, 14, 0.05);
+	--border: rgba(28, 22, 14, 0.12);
+	--border-strong: rgba(28, 22, 14, 0.2);
+	--text: #191712;
+	--text-muted: #5b5449;
+	--text-faint: #8a8276;
+	--accent: #9c3d10;
+	--accent-dim: #7d300b;
+	--accent-ink: #ffffff;
+	--glow: rgba(200, 120, 40, 0.12);
+	--grain-opacity: 0.018;
+}
+
+/* ---------- F. Paper: cool light, editorial ---------- */
+:root[data-theme='paper'] {
+	color-scheme: light;
+	--bg: #f7f7f8;
+	--bg-raised: #ffffff;
+	--surface: rgba(16, 18, 24, 0.022);
+	--surface-hover: rgba(16, 18, 24, 0.045);
+	--border: rgba(16, 18, 24, 0.12);
+	--border-strong: rgba(16, 18, 24, 0.2);
+	--text: #101218;
+	--text-muted: #555a66;
+	--text-faint: #868c99;
+	--accent: #1d4ed8;
+	--accent-dim: #163fb0;
+	--accent-ink: #ffffff;
+	--glow: rgba(29, 78, 216, 0.08);
+	--grain-opacity: 0.015;
+}

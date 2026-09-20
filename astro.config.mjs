@@ -12,7 +12,12 @@ const BASE = '/';
 export default defineConfig({
 	site: SITE,
 	base: BASE,
-	integrations: [sitemap()],
+	integrations: [
+		sitemap({
+			// theme-lab is temporary scaffolding, not a real page.
+			filter: (page) => !page.includes('theme-lab'),
+		}),
+	],
 	build: {
 		// Emit /about/index.html rather than /about.html so GitHub Pages
 		// resolves extensionless URLs correctly.
