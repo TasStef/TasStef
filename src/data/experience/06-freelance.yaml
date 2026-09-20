@@ -7,4 +7,4 @@ order: 6
 highlights:
   - Built a full-stack face recognition web application in React, Node.js and Postgres, owning the lifecycle from requirements to deployment.
   - Developed real-time dashboards and authentication with Firebase for multiple client projects.
-  - Optimised frontend performance through lazy loading and code splitting, cutting load times by 25%.
+  - Optimized frontend performance through lazy loading and code splitting, cutting load times by 25%.

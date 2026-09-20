@@ -14,11 +14,12 @@ export interface Profile {
 	name: string;
 	title: string;
 	role: string;
-	location: string;
 	/** One-line hook shown under the name. Keep it short and concrete. */
 	pitch: string;
 	/** Two or three sentences of context. */
 	intro: string;
+	/** Short form for <meta description>; search results truncate the full intro. */
+	metaDescription: string;
 	email: string;
 	socials: SocialLink[];
 	education: Education[];
@@ -31,10 +32,11 @@ export const profile: Profile = {
 	name: 'Tasos Stefanidis',
 	title: 'Software Engineer',
 	role: 'Full Stack Software Engineer',
-	location: 'London, UK',
-	pitch: 'I build systems that hold up under real use.',
+	pitch: 'I take features from idea to production, and own everything in between',
 	intro:
-		'Full stack software engineer working across .NET and TypeScript, currently at Tipalti. Four years in fintech building payment and treasury systems where correctness is not negotiable. I like owning a feature end to end, from data model to deployment.',
+		'Full Stack Software Engineer experienced in designing and delivering production-grade web applications and backend systems. Comfortable owning features end-to-end, from architecture and data modeling to frontend implementation and deployment. Strong focus on system reliability, performance, and pragmatic engineering decisions in fast-moving environments.',
+	metaDescription:
+		'Full stack software engineer. I design and deliver production-grade web applications and backend systems, owning features from architecture to deployment.',
 	email: 'tasos.stefanidis@outlook.com',
 	education: [
 		{
