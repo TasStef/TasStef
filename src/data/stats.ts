@@ -9,7 +9,7 @@ export interface Stat {
 // writing, so nothing on the site overstates what the CV says.
 export const stats: Stat[] = [
 	{ value: 6, suffix: 'yrs', label: 'Shipping production systems' },
-	{ value: 30, suffix: '%', label: 'Less test suite flakiness' },
 	{ value: 90, suffix: '%', label: 'Faster client onboarding' },
+	{ value: 30, suffix: '%', label: 'Less test suite flakiness' },
 	{ value: 25, suffix: '%', label: 'Fewer support tickets' },
 ];
