@@ -1,7 +1,8 @@
 /*
  * Design tokens. This is the single file to edit to change the whole look.
  *
- * Direction: dark glow + depth. Near-black base, a blue/purple glow pair,
+ * Direction: monochrome UI, coloured atmosphere. The accent is a neutral
+ * near-white; all hue lives in the overlay glow behind the content.
  * fine noise grain, gradient hairline borders, subtly glassy surfaces.
  */
 
@@ -17,22 +18,23 @@
 	--border-strong: rgba(255, 255, 255, 0.16);
 
 	/* ---- Text ---- */
-	--text: #e9eaf2;
+	--text: #d6dae1; /* deliberately below --accent so the accent reads */
 	--text-muted: #8d93a8;
 	--text-faint: #5f657a; /* decorative only, never body copy */
 
-	/* ---- Accent: electric blue/purple ----
-	 * NOTE: tuned for a dark background and deliberately redefined for
-	 * light mode below. Do not reuse one value across both schemes.
-	 * --accent-2 is a second hue used ONLY in gradients, never for text,
-	 * so it is not held to a text contrast ratio.
+	/* ---- Accent: neutral near-white ----
+	 * The accent carries no hue, so it must out-brighten --text to read as
+	 * an accent at all. Keep --accent lighter than --text, always.
+	 *
+	 * Colour lives in --glow / --glow-2 instead: the overlay. These are
+	 * background-only and never sit behind text as a solid, so they are not
+	 * held to a text contrast ratio.
 	 */
-	--accent: #8f9dfa;
-	--accent-2: #a77df0;
-	--accent-dim: #6f7fe0;
+	--accent: #edeff0;
+	--accent-dim: #c2c7cd;
 	--accent-ink: #06070c; /* text placed ON an accent fill */
-	--glow: rgba(143, 157, 250, 0.16);
-	--glow-2: rgba(167, 125, 240, 0.13);
+	--glow: rgba(124, 138, 255, 0.2);
+	--glow-2: rgba(168, 120, 246, 0.16);
 	--grain-opacity: 0.032;
 
 	/* ---- Type ---- */
@@ -93,18 +95,18 @@
 		--border: rgba(0, 0, 0, 0.1);
 		--border-strong: rgba(0, 0, 0, 0.18);
 
-		--text: #14151c;
+		--text: #34383f; /* above --accent in lightness, same reason */
 		--text-muted: #555a6b;
 		--text-faint: #858b94;
 
-		/* Deep indigo/violet. The bright dark-mode accent would sit
-		 * around 2.6:1 here, so light mode gets its own values. */
-		--accent: #4038c4;
-		--accent-2: #7b3fc9;
-		--accent-dim: #322b9e;
+		/* Light mode inverts the idea: the accent becomes the DARKEST
+		 * neutral rather than the lightest. A near-white accent would be
+		 * invisible here. */
+		--accent: #111318;
+		--accent-dim: #2c3038;
 		--accent-ink: #ffffff;
-		--glow: rgba(64, 56, 196, 0.1);
-		--glow-2: rgba(123, 63, 201, 0.08);
+		--glow: rgba(96, 108, 224, 0.12);
+		--glow-2: rgba(150, 100, 224, 0.1);
 		--grain-opacity: 0.02;
 	}
 }
