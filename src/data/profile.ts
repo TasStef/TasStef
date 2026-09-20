@@ -68,7 +68,7 @@ export const profile: Profile = {
 			note: 'Always chasing a better shot than yesterday.',
 		},
 		{
-			name: 'Mixed martial arts',
+			name: 'Martial arts',
 			icon: 'gloves',
 			note: 'Reliably humbling. Good practice for code review.',
 		},

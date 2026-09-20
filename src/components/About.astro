@@ -31,11 +31,11 @@ import { profile } from '../data/profile';
 				{
 					profile.interests.map((i) => (
 						<li class="interest hairline">
-							<InterestIcon name={i.icon} />
-							<div class="interest-text">
+							<div class="interest-head">
+								<InterestIcon name={i.icon} />
 								<span class="interest-name">{i.name}</span>
-								<span class="interest-note">{i.note}</span>
 							</div>
+							<span class="interest-note">{i.note}</span>
 						</li>
 					))
 				}
@@ -112,45 +112,27 @@ import { profile } from '../data/profile';
 		gap: var(--sp-3);
 	}
 
-	@media (min-width: 60rem) {
-		.interests {
-			grid-template-columns: repeat(3, 1fr);
-			gap: var(--sp-3);
-		}
-
-		/* Icon moves above the text: side by side there is not enough
-		   width left for the label once the icon and gap are taken out. */
-		.interest {
-			flex-direction: column;
-			gap: var(--sp-3);
-			padding: var(--sp-4);
-		}
-
-		.interest-name {
-			font-size: var(--step--1);
-		}
-	}
 
 	.interest {
 		display: flex;
-		align-items: flex-start;
-		gap: var(--sp-4);
-		padding: var(--sp-5, 1.25rem) var(--sp-6);
+		flex-direction: column;
+		gap: var(--sp-2);
+		padding: var(--sp-4) var(--sp-5, 1.25rem);
 		background: var(--surface);
 		transition:
 			background var(--dur-base) var(--ease-out),
 			transform var(--dur-base) var(--ease-out);
 	}
 
+	.interest-head {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-3);
+	}
+
 	.interest:hover {
 		background: var(--surface-hover);
 		transform: translateY(-2px);
-	}
-
-	.interest-text {
-		display: flex;
-		flex-direction: column;
-		gap: var(--sp-1);
 	}
 
 	.interest-name {
@@ -163,5 +145,34 @@ import { profile } from '../data/profile';
 		font-size: var(--step--1);
 		color: var(--text-muted);
 		text-wrap: pretty;
+	}
+	/* Must come AFTER the base .interest rules: same specificity, so
+	   source order decides. Declared earlier, the base rules won and the
+	   overrides here silently did nothing. */
+	@media (min-width: 60rem) {
+		.interests {
+			grid-template-columns: repeat(3, 1fr);
+			gap: var(--sp-3);
+		}
+
+		/* Tightened at three across so the icon and label still share a
+		   line in roughly 190px of card. */
+		.interest {
+			padding: var(--sp-4);
+			gap: var(--sp-1);
+		}
+
+		.interest-head {
+			gap: var(--sp-2);
+		}
+
+		.interest-head :global(.interest-icon) {
+			width: 18px;
+			height: 18px;
+		}
+
+		.interest-name {
+			font-size: var(--step--1);
+		}
 	}
 </style>
