@@ -59,13 +59,22 @@ import { profile } from '../data/profile';
 		text-wrap: pretty;
 	}
 
-	/* Education and Outside work share a row again; they only went full
-	   width while the interest cards were laid out horizontally. */
+	/* Education and Outside work share a row. Stacked by default; the
+	   two-column form only switches on when there is room for three
+	   interest cards across without crushing them. */
 	.about-meta {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+		grid-template-columns: 1fr;
 		gap: var(--sp-8);
 		align-items: start;
+	}
+
+	@media (min-width: 60rem) {
+		.about-meta {
+			/* Uneven on purpose: Education is two short lines, Outside work
+			   has to fit three cards side by side. */
+			grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+		}
 	}
 
 	.block-title {
@@ -101,6 +110,25 @@ import { profile } from '../data/profile';
 		display: grid;
 		grid-template-columns: 1fr;
 		gap: var(--sp-3);
+	}
+
+	@media (min-width: 60rem) {
+		.interests {
+			grid-template-columns: repeat(3, 1fr);
+			gap: var(--sp-3);
+		}
+
+		/* Icon moves above the text: side by side there is not enough
+		   width left for the label once the icon and gap are taken out. */
+		.interest {
+			flex-direction: column;
+			gap: var(--sp-3);
+			padding: var(--sp-4);
+		}
+
+		.interest-name {
+			font-size: var(--step--1);
+		}
 	}
 
 	.interest {
