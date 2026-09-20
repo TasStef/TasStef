@@ -27,30 +27,30 @@ const { name } = Astro.props;
 	{
 		name === 'espresso' && (
 			<>
-				<path d="M3 9h12v5a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9Z" />
-				<path d="M15 10h2.5a2.5 2.5 0 0 1 0 5H15" />
-				<path d="M2 21h15" />
-				<path d="M7 2.5c-.8 1-.8 2 0 3" />
-				<path d="M11 2.5c-.8 1-.8 2 0 3" />
+				<path pathLength="1" d="M3 9h12v5a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9Z" />
+				<path pathLength="1" d="M15 10h2.5a2.5 2.5 0 0 1 0 5H15" />
+				<path pathLength="1" d="M2 21h15" />
+				<path pathLength="1" d="M7 2.5c-.8 1-.8 2 0 3" />
+				<path pathLength="1" d="M11 2.5c-.8 1-.8 2 0 3" />
 			</>
 		)
 	}
 	{
 		name === 'gloves' && (
 			<>
-				<path d="M7 8a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v3a5 5 0 0 1-5 5h-3a4 4 0 0 1-4-4V8Z" />
-				<path d="M7 10H5.5A2.5 2.5 0 0 0 3 12.5 2.5 2.5 0 0 0 5.5 15H7" />
-				<path d="M8 16v3a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-3" />
+				<path pathLength="1" d="M7 8a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v3a5 5 0 0 1-5 5h-3a4 4 0 0 1-4-4V8Z" />
+				<path pathLength="1" d="M7 10H5.5A2.5 2.5 0 0 0 3 12.5 2.5 2.5 0 0 0 5.5 15H7" />
+				<path pathLength="1" d="M8 16v3a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-3" />
 			</>
 		)
 	}
 	{
 		name === 'chess' && (
 			<>
-				<circle cx="12" cy="5" r="2.6" />
-				<path d="M8.9 9.3h6.2" />
-				<path d="M10.3 9.3c0 3.4-1.3 6.1-3.4 8.2h10.2c-2.1-2.1-3.4-4.8-3.4-8.2" />
-				<path d="M6.9 17.5h10.2l1.6 3.1H5.3Z" />
+				<circle pathLength="1" cx="12" cy="5" r="2.6" />
+				<path pathLength="1" d="M8.9 9.3h6.2" />
+				<path pathLength="1" d="M10.3 9.3c0 3.4-1.3 6.1-3.4 8.2h10.2c-2.1-2.1-3.4-4.8-3.4-8.2" />
+				<path pathLength="1" d="M6.9 17.5h10.2l1.6 3.1H5.3Z" />
 			</>
 		)
 	}
@@ -60,5 +60,50 @@ const { name } = Astro.props;
 	.interest-icon {
 		flex: none;
 		color: var(--accent);
+	}
+
+	/* Draw-in.
+	 *
+	 * Gated on .has-reveal, which only the motion script adds, so with JS
+	 * off or unavailable the icons are simply drawn and nothing is hidden.
+	 * .is-visible lives on the card in About.astro, hence :global.
+	 */
+	:global(:root.has-reveal) .interest-icon > * {
+		stroke-dasharray: 1;
+		stroke-dashoffset: 1;
+	}
+
+	:global(:root.has-reveal) :global(.is-visible) .interest-icon > * {
+		animation: icon-draw 620ms var(--ease-out) forwards;
+	}
+
+	/* Each stroke follows the last, so the icon assembles itself rather
+	   than every line appearing at once. */
+	:global(:root.has-reveal) :global(.is-visible) .interest-icon > :nth-child(2) {
+		animation-delay: 90ms;
+	}
+	:global(:root.has-reveal) :global(.is-visible) .interest-icon > :nth-child(3) {
+		animation-delay: 180ms;
+	}
+	:global(:root.has-reveal) :global(.is-visible) .interest-icon > :nth-child(4) {
+		animation-delay: 260ms;
+	}
+	:global(:root.has-reveal) :global(.is-visible) .interest-icon > :nth-child(5) {
+		animation-delay: 330ms;
+	}
+
+	@keyframes icon-draw {
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+
+	/* Reduced motion: no dash offset at all, so the icons are just there. */
+	@media (prefers-reduced-motion: reduce) {
+		:global(:root.has-reveal) .interest-icon > * {
+			stroke-dasharray: none;
+			stroke-dashoffset: 0;
+			animation: none;
+		}
 	}
 </style>

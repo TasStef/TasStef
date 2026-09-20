@@ -25,12 +25,15 @@ import { profile } from '../data/profile';
 			</ul>
 		</div>
 
-			<div class="block reveal" style="--reveal-delay: 120ms">
-			<h3 class="label block-title">Outside work</h3>
+			<div class="block">
+			<h3 class="label block-title reveal" style="--reveal-delay: 120ms">Outside work</h3>
 			<ul class="interests">
 				{
-					profile.interests.map((i) => (
-						<li class="interest hairline">
+					profile.interests.map((i, idx) => (
+						<li
+							class="interest hairline reveal"
+							style={`--reveal-delay: ${180 + idx * 110}ms`}
+						>
 							<div class="interest-head">
 								<InterestIcon name={i.icon} />
 								<span class="interest-name">{i.name}</span>
