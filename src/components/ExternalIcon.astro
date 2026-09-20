@@ -1,0 +1,40 @@
+---
+/**
+ * External-link glyph. Purely decorative: it is marked aria-hidden, and the
+ * meaning is carried by a visually-hidden "(opens in a new tab)" next to it,
+ * so screen reader users get the warning too rather than only sighted users.
+ */
+---
+
+<svg
+	class="external-icon"
+	viewBox="0 0 16 16"
+	width="11"
+	height="11"
+	fill="none"
+	stroke="currentColor"
+	stroke-width="1.6"
+	stroke-linecap="round"
+	stroke-linejoin="round"
+	aria-hidden="true"
+	focusable="false"
+>
+	<path d="M9.5 2.5h4v4" />
+	<path d="M13.5 2.5 7.5 8.5" />
+	<path d="M12 9.5v3a1 1 0 0 1-1 1H3.5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3" />
+</svg>
+
+<style>
+	.external-icon {
+		flex: none;
+		opacity: 0.65;
+		transition:
+			opacity var(--dur-fast) var(--ease-out),
+			transform var(--dur-fast) var(--ease-out);
+	}
+
+	:where(a:hover, a:focus-visible) .external-icon {
+		opacity: 1;
+		transform: translate(1px, -1px);
+	}
+</style>

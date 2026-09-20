@@ -29,9 +29,10 @@ const hasLinks = Boolean(live || repo);
 	<h3 class="card-title">
 		{
 			primary ? (
-				<a href={primary} target="_blank" rel="noopener">
+				<a href={primary} target="_blank" rel="noopener noreferrer">
 					{title}
 					<span class="arrow" aria-hidden="true">↗</span>
+					<span class="visually-hidden">(opens in a new tab)</span>
 				</a>
 			) : (
 				title
@@ -49,13 +50,15 @@ const hasLinks = Boolean(live || repo);
 		hasLinks ? (
 			<div class="card-links">
 				{live && (
-					<a href={live} target="_blank" rel="noopener">
+					<a href={live} target="_blank" rel="noopener noreferrer">
 						Live site
+						<span class="visually-hidden">(opens in a new tab)</span>
 					</a>
 				)}
 				{repo && (
-					<a href={repo} target="_blank" rel="noopener">
+					<a href={repo} target="_blank" rel="noopener noreferrer">
 						Source
+						<span class="visually-hidden">(opens in a new tab)</span>
 					</a>
 				)}
 			</div>

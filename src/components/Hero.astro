@@ -1,16 +1,12 @@
 ---
 import { profile } from '../data/profile';
+import ExternalIcon from './ExternalIcon.astro';
 ---
 
 <header class="hero">
 	<div class="container hero-inner">
-		<p class="label hero-status enter" data-scramble data-scramble-now>
-			<span class="dot" aria-hidden="true"></span>
-			Available for work · {profile.location}
-		</p>
-
 		<h1 class="hero-name enter" style="--enter-delay: 60ms">
-			{profile.name}
+			{profile.name} - {profile.title}
 		</h1>
 
 		<p class="hero-pitch enter" style="--enter-delay: 120ms">
@@ -26,8 +22,15 @@ import { profile } from '../data/profile';
 			<a class="btn" href={`mailto:${profile.email}`}>Get in touch</a>
 			{
 				profile.socials.map((s) => (
-					<a class="btn btn-quiet" href={s.href} rel="me noopener" target="_blank">
+					<a
+						class="btn btn-external"
+						href={s.href}
+						rel="me noopener noreferrer"
+						target="_blank"
+					>
 						{s.label}
+						<ExternalIcon />
+						<span class="visually-hidden">(opens in a new tab)</span>
 					</a>
 				))
 			}
@@ -121,9 +124,7 @@ import { profile } from '../data/profile';
 		border-color: var(--accent-dim);
 	}
 
-	.btn-quiet {
-		background: transparent;
-		border-color: var(--border);
-		color: var(--text-muted);
+	.btn-external {
+		gap: var(--sp-2);
 	}
 </style>
