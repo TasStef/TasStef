@@ -212,9 +212,8 @@ export function initCollapsibles() {
 
 	stints.forEach((stint, i) => {
 		const btn = stint.querySelector<HTMLButtonElement>('.stint-toggle');
-		const head = stint.querySelector<HTMLElement>('.stint-head');
 		const content = stint.querySelector<HTMLElement>('.stint-content');
-		if (!btn || !head || !content) return;
+		if (!btn || !content) return;
 
 		if (!content.id) content.id = `stint-content-${i}`;
 		btn.setAttribute('aria-controls', content.id);
@@ -229,14 +228,25 @@ export function initCollapsibles() {
 
 		const toggle = () => setOpen(stint.classList.contains('is-collapsed'));
 
-		// The button is the accessible control; the header is a larger hit
-		// area for the same action. stopPropagation keeps a click on the
-		// button from also firing the header handler and cancelling itself.
-		btn.addEventListener('click', (e) => {
-			e.stopPropagation();
+		// One handler on the whole card. Previously this sat on the header,
+		// which left the date column, the Current badge, the role-titles
+		// line and the card padding all inert.
+		//
+		// The button needs no handler of its own: its clicks bubble to here,
+		// including the synthetic click from keyboard activation.
+		stint.addEventListener('click', (e) => {
+			const target = e.target as HTMLElement | null;
+			if (!target) return;
+
+			// Clicks inside the expanded detail must not close the card, or
+			// reading the bullets becomes a way to lose them.
+			if (target.closest('.stint-content')) return;
+
+			// Don't treat the end of a text selection as a click.
+			if (window.getSelection()?.toString()) return;
+
 			toggle();
 		});
-		head.addEventListener('click', toggle);
 	});
 }
 

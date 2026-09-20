@@ -180,9 +180,14 @@ for (const role of roles) {
 		gap: var(--sp-4);
 	}
 
-	/* Only a pointer once the script has made the header do something. */
-	:global(:root.has-collapse) .stint-head {
+	/* The whole card is the hit area once the script is running. */
+	:global(:root.has-collapse) .stint {
 		cursor: pointer;
+	}
+
+	/* ...except the expanded detail, which is for reading, not toggling. */
+	:global(:root.has-collapse) .stint-content {
+		cursor: auto;
 	}
 
 	.stint-toggle {
