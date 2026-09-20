@@ -1,0 +1,90 @@
+---
+import Section from './Section.astro';
+import { profile } from '../data/profile';
+
+// No contact form: GitHub Pages serves static files and cannot process a
+// POST. A form would mean a third-party dependency for very little gain.
+// Phone number is deliberately omitted from the public page.
+const [user, domain] = profile.email.split('@');
+---
+
+<Section id="contact" label="04 / Contact" heading="Get in touch">
+	<div class="contact reveal">
+		<p class="contact-lead">
+			Open to interesting problems, particularly in fintech and developer tooling.
+			The fastest way to reach me is email.
+		</p>
+
+		<ul class="channels">
+			<li class="hairline channel">
+				<span class="label">Email</span>
+				<a class="channel-value" href={`mailto:${profile.email}`}>
+					<span>{user}</span><span aria-hidden="true">@</span><span>{domain}</span>
+				</a>
+			</li>
+
+			{
+				profile.socials.map((s) => (
+					<li class="hairline channel">
+						<span class="label">{s.label}</span>
+						<a class="channel-value" href={s.href} target="_blank" rel="me noopener">
+							{s.handle}
+							<span class="arrow" aria-hidden="true">↗</span>
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</Section>
+
+<style>
+	.contact {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-8);
+	}
+
+	.contact-lead {
+		color: var(--text-muted);
+		max-width: var(--measure);
+		font-size: var(--step-1);
+	}
+
+	.channels {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+		gap: var(--sp-4);
+	}
+
+	.channel {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-2);
+		padding: var(--sp-6);
+		background: var(--surface);
+		transition: background var(--dur-base) var(--ease-out);
+	}
+
+	.channel:hover {
+		background: var(--surface-hover);
+	}
+
+	.channel-value {
+		display: inline-flex;
+		align-items: baseline;
+		gap: var(--sp-1);
+		font-size: var(--step-0);
+		word-break: break-word;
+		transition: color var(--dur-fast) var(--ease-out);
+	}
+
+	.channel-value:hover {
+		color: var(--accent);
+	}
+
+	.arrow {
+		font-size: 0.75em;
+		color: var(--text-faint);
+	}
+</style>

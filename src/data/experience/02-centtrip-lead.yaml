@@ -1,0 +1,12 @@
+company: Centtrip
+context: Fintech
+title: Full Stack Engineer & Technical Lead
+location: London, UK
+start: Mar 2024
+end: Mar 2026
+order: 2
+highlights:
+  - Built responsive Angular UIs and scalable .NET backend services supporting core business logic and user workflows.
+  - Designed complex queries and CRUD operations across three database systems (MySQL, SQL Server, DynamoDB), ensuring data integrity and performance.
+  - Led POCs for client-side PDF generation and feature flags, driving new technical capability into the product.
+  - Implemented event-driven features using RabbitMQ for asynchronous communication.

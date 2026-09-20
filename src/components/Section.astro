@@ -1,0 +1,37 @@
+---
+interface Props {
+	id: string;
+	/** Mono microlabel, e.g. "01 / Experience" */
+	label: string;
+	heading: string;
+}
+
+const { id, label, heading } = Astro.props;
+---
+
+<section id={id} class="section">
+	<div class="container">
+		<header class="section-head reveal">
+			<p class="label">{label}</p>
+			<h2>{heading}</h2>
+		</header>
+		<slot />
+	</div>
+</section>
+
+<style>
+	.section {
+		padding-block: clamp(var(--sp-16), 11vh, var(--sp-24));
+	}
+
+	.section-head {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-3);
+		margin-bottom: var(--sp-12);
+	}
+
+	.section-head h2 {
+		font-size: var(--step-2);
+	}
+</style>

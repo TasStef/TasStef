@@ -1,0 +1,11 @@
+company: Centtrip
+context: Fintech
+title: Software Engineer
+location: London, UK
+start: Jan 2023
+end: Mar 2024
+order: 3
+highlights:
+  - Developed database migration tooling across multiple systems, improving data consistency and transfer automation.
+  - Built scheduled data pipelines aggregating client data into automated daily summary emails.
+  - Developed and maintained client integrations, troubleshooting sandbox environments and gathering technical requirements.

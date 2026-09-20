@@ -1,0 +1,105 @@
+/*
+ * Design tokens. This is the single file to edit to change the whole look.
+ *
+ * Direction: dark glow + depth. Near-black base, one radial lime glow,
+ * fine noise grain, gradient hairline borders, subtly glassy surfaces.
+ */
+
+:root {
+	color-scheme: dark;
+
+	/* ---- Surface ---- */
+	--bg: #08090b; /* near-black, very slightly blue-shifted (never pure #000) */
+	--bg-raised: #0d0f12;
+	--surface: rgba(255, 255, 255, 0.025);
+	--surface-hover: rgba(255, 255, 255, 0.045);
+	--border: rgba(255, 255, 255, 0.08);
+	--border-strong: rgba(255, 255, 255, 0.16);
+
+	/* ---- Text ---- */
+	--text: #e8eaed; /* 16.5:1 on --bg */
+	--text-muted: #8b9199; /* 6.3:1 on --bg  */
+	--text-faint: #5c626b; /* decorative only, never body copy */
+
+	/* ---- Accent: acid lime ----
+	 * NOTE: this value is tuned for a dark background and is deliberately
+	 * redefined for light mode below. Do not reuse one lime across both
+	 * schemes; bright lime on white fails contrast badly.
+	 */
+	--accent: #c6f24e; /* 15.7:1 on --bg */
+	--accent-dim: #9fc93b;
+	--accent-ink: #08090b; /* text placed ON an accent fill */
+	--glow: rgba(198, 242, 78, 0.1);
+	--grain-opacity: 0.032;
+
+	/* ---- Type ---- */
+	--font-sans:
+		ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Inter, Roboto,
+		'Helvetica Neue', Arial, sans-serif;
+	--font-mono:
+		ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+		'Liberation Mono', monospace;
+
+	/* Fluid type scale */
+	--step--1: clamp(0.78rem, 0.76rem + 0.1vw, 0.84rem);
+	--step-0: clamp(0.95rem, 0.92rem + 0.15vw, 1.05rem);
+	--step-1: clamp(1.15rem, 1.08rem + 0.35vw, 1.4rem);
+	--step-2: clamp(1.45rem, 1.3rem + 0.75vw, 2rem);
+	--step-3: clamp(1.9rem, 1.6rem + 1.5vw, 3rem);
+	--step-4: clamp(2.6rem, 1.9rem + 3.4vw, 5.5rem);
+
+	/* Negative tracking on display sizes is most of what makes large type
+	 * feel current; its absence reads as dated immediately. */
+	--tracking-display: -0.035em;
+	--tracking-label: 0.14em;
+
+	/* ---- Space (4px base) ---- */
+	--sp-1: 0.25rem;
+	--sp-2: 0.5rem;
+	--sp-3: 0.75rem;
+	--sp-4: 1rem;
+	--sp-6: 1.5rem;
+	--sp-8: 2rem;
+	--sp-12: 3rem;
+	--sp-16: 4rem;
+	--sp-24: 6rem;
+	--sp-32: 8rem;
+
+	/* ---- Layout ---- */
+	--measure: 68ch;
+	--container: 68rem;
+	--gutter: clamp(1.25rem, 5vw, 2.5rem);
+	--radius: 14px;
+	--radius-sm: 8px;
+
+	/* ---- Motion ---- */
+	--dur-fast: 140ms;
+	--dur-base: 320ms;
+	--dur-slow: 700ms;
+	--ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-color-scheme: light) {
+	:root {
+		color-scheme: light;
+
+		--bg: #fbfbf9;
+		--bg-raised: #ffffff;
+		--surface: rgba(0, 0, 0, 0.02);
+		--surface-hover: rgba(0, 0, 0, 0.04);
+		--border: rgba(0, 0, 0, 0.1);
+		--border-strong: rgba(0, 0, 0, 0.18);
+
+		--text: #14161a;
+		--text-muted: #565c66;
+		--text-faint: #858b94;
+
+		/* Darkened, desaturated lime. ~5.9:1 on --bg, unlike the bright
+		 * value above which would sit around 1.2:1 here. */
+		--accent: #4a6b0a;
+		--accent-dim: #3c5708;
+		--accent-ink: #ffffff;
+		--glow: rgba(120, 170, 20, 0.1);
+		--grain-opacity: 0.02;
+	}
+}

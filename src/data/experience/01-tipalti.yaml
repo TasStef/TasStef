@@ -1,0 +1,11 @@
+company: Tipalti
+context: Fintech
+title: Software Engineer
+location: London, UK
+start: Mar 2026
+end: null
+order: 1
+highlights:
+  - Applied agentic AI strategies, custom skill automations and MCP integrations to accelerate code discovery, test generation and evaluation, with manual review for correctness.
+  - Reduced test suite flakiness by 30% and cut pipeline runtime by 35 minutes, improving deployment confidence.
+  - Delivered features end to end, covering edge cases in critical user flows.

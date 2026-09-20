@@ -1,0 +1,207 @@
+@import './tokens.css';
+
+/* ---- Reset ---- */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+* {
+	margin: 0;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+	scroll-behavior: smooth;
+	scroll-padding-top: var(--sp-16);
+}
+
+body {
+	position: relative;
+	background-color: var(--bg);
+	color: var(--text);
+	font-family: var(--font-sans);
+	font-size: var(--step-0);
+	line-height: 1.65;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+	min-height: 100svh;
+	overflow-x: hidden;
+}
+
+img,
+svg,
+video {
+	display: block;
+	max-width: 100%;
+}
+
+h1,
+h2,
+h3 {
+	line-height: 1.08;
+	letter-spacing: var(--tracking-display);
+	font-weight: 560;
+	text-wrap: balance;
+}
+
+p {
+	text-wrap: pretty;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+ul {
+	list-style: none;
+	padding: 0;
+}
+
+/* ---- Focus ----
+ * Always visible, never removed. Uses accent so it reads as intentional. */
+:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 3px;
+	border-radius: 2px;
+}
+
+/* ---- Shared utilities ---- */
+.container {
+	width: 100%;
+	max-width: var(--container);
+	margin-inline: auto;
+	padding-inline: var(--gutter);
+}
+
+/* Uppercase mono microlabel. Cheap, and does most of the work of making
+ * the page feel engineered rather than decorated. */
+.label {
+	font-family: var(--font-mono);
+	font-size: var(--step--1);
+	letter-spacing: var(--tracking-label);
+	text-transform: uppercase;
+	color: var(--text-muted);
+	font-weight: 500;
+}
+
+.skip-link {
+	position: absolute;
+	left: var(--sp-4);
+	top: -100%;
+	z-index: 100;
+	padding: var(--sp-3) var(--sp-4);
+	background: var(--accent);
+	color: var(--accent-ink);
+	border-radius: var(--radius-sm);
+	font-weight: 600;
+	transition: top var(--dur-fast) var(--ease-out);
+}
+
+.skip-link:focus {
+	top: var(--sp-4);
+}
+
+/* ---- Gradient hairline ----
+ * A 1px border that fades along its length, brighter at the top edge.
+ * Built with a masked gradient rather than a real border. */
+.hairline {
+	position: relative;
+	border-radius: var(--radius);
+}
+
+.hairline::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	padding: 1px;
+	background: linear-gradient(
+		160deg,
+		var(--border-strong),
+		var(--border) 40%,
+		transparent 70%
+	);
+	-webkit-mask:
+		linear-gradient(#000 0 0) content-box,
+		linear-gradient(#000 0 0);
+	-webkit-mask-composite: xor;
+	mask:
+		linear-gradient(#000 0 0) content-box,
+		linear-gradient(#000 0 0);
+	mask-composite: exclude;
+	pointer-events: none;
+}
+
+/* ---- Scroll reveal ----
+ * Content is VISIBLE BY DEFAULT. The hiding rules only apply once JS has
+ * added .has-reveal to <html>, which it does synchronously before paint and
+ * only when it is also able to run the observer that reveals them again.
+ * With JS disabled or broken, nothing is ever stranded invisible.
+ */
+.reveal {
+	opacity: 1;
+}
+
+:root.has-reveal .reveal {
+	opacity: 0;
+	transform: translateY(14px);
+}
+
+:root.has-reveal .reveal.is-visible {
+	opacity: 1;
+	transform: none;
+	transition:
+		opacity var(--dur-slow) var(--ease-out),
+		transform var(--dur-slow) var(--ease-out);
+	transition-delay: var(--reveal-delay, 0ms);
+}
+
+/* ---- Hero entrance ----
+ * Pure CSS, runs on load, no JS dependency. The resting state of these
+ * elements is visible; the keyframe only animates FROM hidden, so if
+ * animations never run the content simply shows.
+ */
+.enter {
+	animation: enter var(--dur-base) var(--ease-out) both;
+	animation-delay: var(--enter-delay, 0ms);
+}
+
+@keyframes enter {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* ---- Reduced motion ----
+ * Accessibility requirement, not a nicety. Kills transforms and durations
+ * but leaves opacity end-states intact so nothing disappears. */
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-delay: 0ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+
+	.reveal,
+	:root.has-reveal .reveal,
+	:root.has-reveal .reveal.is-visible {
+		opacity: 1 !important;
+		transform: none !important;
+	}
+}

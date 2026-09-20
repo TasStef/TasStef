@@ -1,0 +1,113 @@
+---
+import '../styles/global.css';
+import { profile } from '../data/profile';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = `${profile.name} — ${profile.role}`,
+	description = profile.intro,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('og.png', Astro.site);
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonical} />
+
+		<link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
+		<meta name="generator" content={Astro.generator} />
+
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonical} />
+		<meta property="og:image" content={ogImage} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImage} />
+	</head>
+
+	<body>
+		<a class="skip-link" href="#main">Skip to content</a>
+
+		<!-- One radial glow. Resist adding more; competing glows are the
+		     main way this look goes wrong. -->
+		<div class="glow" aria-hidden="true"></div>
+		<div class="grain" aria-hidden="true"></div>
+
+		<main id="main">
+			<slot />
+		</main>
+
+		<footer class="site-footer">
+			<div class="container footer-inner">
+				<span class="label">© {year} {profile.name}</span>
+				<span class="label">Built with Astro</span>
+			</div>
+		</footer>
+
+		<style>
+			.glow {
+				position: absolute;
+				top: -24vh;
+				left: 50%;
+				width: min(120rem, 160vw);
+				height: 70vh;
+				transform: translateX(-50%);
+				background: radial-gradient(
+					ellipse at center,
+					var(--glow) 0%,
+					transparent 58%
+				);
+				filter: blur(90px);
+				pointer-events: none;
+				z-index: 0;
+			}
+
+			/* Tiled SVG turbulence, inlined as a data URI so it costs no
+			   request. Kills the flat-dark-rectangle feel and hides the
+			   banding that large soft gradients produce. */
+			.grain {
+				position: fixed;
+				inset: 0;
+				pointer-events: none;
+				z-index: 1;
+				opacity: var(--grain-opacity);
+				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+			}
+
+			#main {
+				position: relative;
+				z-index: 2;
+			}
+
+			.site-footer {
+				position: relative;
+				z-index: 2;
+				border-top: 1px solid var(--border);
+				margin-top: var(--sp-32);
+				padding-block: var(--sp-8);
+			}
+
+			.footer-inner {
+				display: flex;
+				flex-wrap: wrap;
+				gap: var(--sp-4);
+				justify-content: space-between;
+			}
+		</style>
+	</body>
+</html>

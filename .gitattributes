@@ -1,0 +1,7 @@
+# Normalise to LF in the repo. The build runs on Ubuntu in CI, so keeping
+# CRLF out of committed files avoids spurious diffs between machines.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary

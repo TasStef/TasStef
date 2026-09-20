@@ -1,0 +1,55 @@
+---
+import Section from './Section.astro';
+import { skillGroups } from '../data/skills';
+---
+
+<Section id="skills" label="03 / Stack" heading="What I work with">
+	<div class="groups">
+		{
+			skillGroups.map((group, i) => (
+				<div class="group reveal" style={`--reveal-delay: ${i * 50}ms`}>
+					<h3 class="label group-name">{group.name}</h3>
+					<ul class="items">
+						{group.items.map((item) => (
+							<li>{item}</li>
+						))}
+					</ul>
+				</div>
+			))
+		}
+	</div>
+</Section>
+
+<style>
+	.groups {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+		gap: var(--sp-8);
+	}
+
+	.group-name {
+		color: var(--accent);
+		margin-bottom: var(--sp-4);
+	}
+
+	.items {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--sp-2);
+	}
+
+	.items li {
+		font-size: var(--step--1);
+		color: var(--text-muted);
+		border: 1px solid var(--border);
+		background: var(--surface);
+		border-radius: var(--radius-sm);
+		padding: var(--sp-1) var(--sp-3);
+		transition: border-color var(--dur-fast) var(--ease-out);
+	}
+
+	.items li:hover {
+		border-color: var(--border-strong);
+		color: var(--text);
+	}
+</style>
