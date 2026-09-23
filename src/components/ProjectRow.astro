@@ -1,0 +1,137 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ProjectDiagram from './ProjectDiagram.astro';
+
+interface Props {
+	project: CollectionEntry<'projects'>;
+	index: number;
+}
+
+const { project, index } = Astro.props;
+const { title, where, blurb, tech, diagram, metric } = project.data;
+
+// Alternate which side the diagram sits on. Collapses to one column below
+// 60rem, where two columns of a flowchart is unreadable.
+const flipped = index % 2 === 1;
+---
+
+<article class:list={['row', 'reveal', { flipped }]} style={`--reveal-delay: ${index * 70}ms`}>
+	<div class="row-figure hairline">
+		<ProjectDiagram name={diagram} />
+	</div>
+
+	<div class="row-copy">
+		<p class="label row-where">{where}</p>
+		<h3 class="row-title">{title}</h3>
+		<p class="row-blurb">{blurb}</p>
+
+		<ul class="tech">
+			{tech.map((t) => <li>{t}</li>)}
+		</ul>
+
+		{
+			metric && (
+				<p class="metric">
+					<span class="metric-value">{metric.value}</span>
+					<span class="metric-label">{metric.label}</span>
+				</p>
+			)
+		}
+	</div>
+</article>
+
+<style>
+	.row {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: var(--sp-6);
+		align-items: center;
+	}
+
+	@media (min-width: 60rem) {
+		.row {
+			grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+			gap: var(--sp-12);
+		}
+
+		/* Swap the visual order only; the DOM order stays diagram-then-copy
+		   so screen readers and keyboard order are consistent down the page. */
+		.row.flipped .row-figure {
+			order: 2;
+		}
+	}
+
+	.row-figure {
+		/* Tight on narrow screens: every pixel of padding is a pixel the
+		   diagram loses, and it is already scaled down there. */
+		padding: var(--sp-3);
+		background: var(--surface);
+		border-radius: var(--radius);
+	}
+
+	@media (min-width: 45rem) {
+		.row-figure {
+			padding: var(--sp-6);
+		}
+	}
+
+	.row-copy {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--sp-3);
+	}
+
+	.row-where {
+		color: var(--text-muted);
+	}
+
+	.row-title {
+		font-size: var(--step-2);
+		letter-spacing: -0.02em;
+	}
+
+	.row-blurb {
+		color: var(--text-muted);
+		max-width: 46ch;
+	}
+
+	.tech {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--sp-2);
+		margin-top: var(--sp-1);
+	}
+
+	.tech li {
+		font-family: var(--font-mono);
+		font-size: var(--step--1);
+		color: var(--text-muted);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		padding: 2px var(--sp-2);
+	}
+
+	.metric {
+		display: flex;
+		align-items: baseline;
+		gap: var(--sp-2);
+		margin-top: var(--sp-2);
+		padding-top: var(--sp-3);
+		border-top: 1px solid var(--border);
+		width: 100%;
+	}
+
+	.metric-value {
+		font-size: var(--step-2);
+		font-weight: 600;
+		letter-spacing: var(--tracking-display);
+		color: var(--text);
+	}
+
+	.metric-label {
+		font-family: var(--font-mono);
+		font-size: var(--step--1);
+		color: var(--accent);
+	}
+</style>

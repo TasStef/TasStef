@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Section from './Section.astro';
-import ProjectCard from './ProjectCard.astro';
+import ProjectRow from './ProjectRow.astro';
 
 const projects = (await getCollection('projects')).sort(
 	(a, b) => a.data.order - b.data.order
@@ -9,15 +9,15 @@ const projects = (await getCollection('projects')).sort(
 ---
 
 <Section id="projects" label="02 / Selected work" heading="Things I've built">
-	<div class="grid">
-		{projects.map((project, i) => <ProjectCard project={project} index={i} />)}
+	<div class="rows">
+		{projects.map((project, i) => <ProjectRow project={project} index={i} />)}
 	</div>
 </Section>
 
 <style>
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
-		gap: var(--sp-4);
+	.rows {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-24);
 	}
 </style>

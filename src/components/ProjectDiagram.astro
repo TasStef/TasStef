@@ -1,0 +1,11 @@
+---
+import AccountingIntegration from './diagrams/AccountingIntegration.astro';
+
+interface Props {
+	name: string;
+}
+
+const { name } = Astro.props;
+---
+
+{name === 'accounting-integration' && <AccountingIntegration />}

@@ -11,11 +11,31 @@ const projects = defineCollection({
 	loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
 	schema: z.object({
 		title: z.string(),
-		blurb: z.string().max(180, 'Keep the card blurb short enough to scan.'),
+		/** Where it was built. Most of the credibility for internal systems. */
+		where: z.string(),
+		blurb: z.string().max(180, 'Keep the row blurb short enough to scan.'),
 		tech: z.array(z.string()).min(1),
+		/** Picks the illustration in src/components/diagrams/. */
+		diagram: z.enum([
+			'accounting-integration',
+			'webhook-payments',
+			'event-services',
+			'feature-flags',
+			'reporting-pipelines',
+			'support-automation',
+		]),
+		/** Headline outcome, where one exists. */
+		metric: z
+			.object({
+				value: z.string(),
+				label: z.string(),
+			})
+			.optional(),
+		/* Optional: these are internal systems, so most will never be public.
+		 * Kept for any future project that is. */
 		repo: z.url().optional(),
 		live: z.url().optional(),
-		status: z.enum(['live', 'wip', 'archived']),
+		status: z.enum(['live', 'wip', 'archived']).optional(),
 		featured: z.boolean().default(false),
 		order: z.number().default(99),
 	}),
