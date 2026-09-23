@@ -5,7 +5,7 @@ import { flowStyle } from '../../lib/diagram';
 /**
  * The "send back" action.
  *
- * Shape of the real thing: an action in the monolith makes a round trip to
+ * Shape of the real thing: an action in the orchestrator makes a round trip to
  * a service, then the result fans out over Kafka to four consumers that
  * each do their own job with it.
  *
@@ -14,6 +14,23 @@ import { flowStyle } from '../../lib/diagram';
  */
 const kafka = brandMark('apachekafka');
 
+/* Boxes are declared once. Every line that meets one derives its endpoint
+ * from these, so resizing a box moves the lines with it. */
+const ORCH = { x: 8, y: 26, w: 110, h: 34 };
+const SVC = { x: 186, y: 26, w: 104, h: 34 };
+
+const orchRight = ORCH.x + ORCH.w;
+const orchMidX = ORCH.x + ORCH.w / 2;
+const orchBottom = ORCH.y + ORCH.h;
+const svcLeft = SVC.x;
+const svcMidX = SVC.x + SVC.w / 2;
+
+/** Centre of the gap between the two boxes, for the round-trip labels. */
+const gapMidX = (orchRight + svcLeft) / 2;
+const roundTripLen = svcLeft - orchRight;
+
+const PUBLISH_TO = 113;
+
 const SPINE_X = 206;
 const CONSUMER_X = 276;
 const CONSUMER_W = 176;
@@ -21,8 +38,8 @@ const CONSUMER_W = 176;
 const consumers = [
 	{ y: 74, label: 'elastic reindex' },
 	{ y: 118, label: 'audit' },
-	{ y: 162, label: 'aggregation' },
-	{ y: 206, label: 'email' },
+	{ y: 162, label: 'aggregation service' },
+	{ y: 206, label: 'email service' },
 ];
 
 const spineTop = consumers[0].y;
@@ -33,31 +50,50 @@ const spineBottom = consumers[consumers.length - 1].y;
 	class="diagram"
 	viewBox="0 0 460 240"
 	role="img"
-	aria-label="A send back action calling a service from the monolith, then fanning out over Kafka to reindexing, audit, aggregation and email"
+	aria-label="A send back action calling a service from the orchestrator, then fanning out over Kafka to reindexing, audit, aggregation and email"
 	fill="none"
 	stroke-linecap="round"
 	stroke-linejoin="round"
 >
 	<text class="lane-label" x="0" y="14">SEND BACK</text>
 
-	{/* Round trip: the monolith asks, the service answers. */}
-	<rect class="box box-accent" x="8" y="26" width="104" height="34" rx="9" />
-	<text class="step" x="60" y="47">monolith</text>
+	{/* Round trip: the orchestrator asks, the service answers. */}
+	<rect
+		class="box box-accent"
+		x={ORCH.x}
+		y={ORCH.y}
+		width={ORCH.w}
+		height={ORCH.h}
+		rx="9"
+	/>
+	<text class="step" x={orchMidX} y="47">orchestrator</text>
 
-	<rect class="box" x="186" y="26" width="104" height="34" rx="9" />
-	<text class="step" x="238" y="47">AF service</text>
+	<rect class="box" x={SVC.x} y={SVC.y} width={SVC.w} height={SVC.h} rx="9" />
+	<text class="step" x={svcMidX} y="47">service</text>
 
-	<path class="track" d="M112 36 H186" />
-	<path class="flow flow-fast" style={flowStyle(74)} d="M112 36 H186" />
-	<text class="step" x="149" y="22">request</text>
+	<path class="track" d={`M${orchRight} 36 H${svcLeft}`} />
+	<path
+		class="flow flow-fast"
+		style={flowStyle(roundTripLen)}
+		d={`M${orchRight} 36 H${svcLeft}`}
+	/>
+	<text class="step" x={gapMidX} y="22">request</text>
 
-	<path class="track" d="M186 50 H112" />
-	<path class="flow flow-fast" style={flowStyle(74)} d="M186 50 H112" />
-	<text class="step" x="149" y="72">reply</text>
+	<path class="track" d={`M${svcLeft} 50 H${orchRight}`} />
+	<path
+		class="flow flow-fast"
+		style={flowStyle(roundTripLen)}
+		d={`M${svcLeft} 50 H${orchRight}`}
+	/>
+	<text class="step" x={gapMidX} y="72">reply</text>
 
-	{/* Then the result is published, and the monolith stops being involved. */}
-	<path class="track" d="M60 60 V113" />
-	<path class="flow flow-fast" style={flowStyle(53)} d="M60 60 V113" />
+	{/* Then the result is published, and the orchestrator stops being involved. */}
+	<path class="track" d={`M${orchMidX} ${orchBottom} V${PUBLISH_TO}`} />
+	<path
+		class="flow flow-fast"
+		style={flowStyle(PUBLISH_TO - orchBottom)}
+		d={`M${orchMidX} ${orchBottom} V${PUBLISH_TO}`}
+	/>
 
 	{/* Topic: stacked bars, the conventional shape for a log. */}
 	<rect class="bar" x="14" y="117" width="96" height="13" rx="4" />
