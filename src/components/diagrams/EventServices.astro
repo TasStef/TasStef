@@ -29,6 +29,14 @@ const svcMidX = SVC.x + SVC.w / 2;
 const gapMidX = (orchRight + svcLeft) / 2;
 const roundTripLen = svcLeft - orchRight;
 
+/* Topic is declared once so the bars, the badge that sits over them and the
+ * feed out to the spine all stay in agreement. */
+const TOPIC = { x: 14, w: 96, top: 117, barH: 13, gap: 4 };
+const bars = [0, 1, 2].map((i) => TOPIC.top + i * (TOPIC.barH + TOPIC.gap));
+const topicBottom = bars[bars.length - 1] + TOPIC.barH;
+const topicMidX = TOPIC.x + TOPIC.w / 2;
+const topicMidY = (TOPIC.top + topicBottom) / 2;
+
 const PUBLISH_TO = 113;
 
 const SPINE_X = 206;
@@ -96,22 +104,33 @@ const spineBottom = consumers[consumers.length - 1].y;
 	/>
 
 	{/* Topic: stacked bars, the conventional shape for a log. */}
-	<rect class="bar" x="14" y="117" width="96" height="13" rx="4" />
-	<rect class="bar" x="14" y="134" width="96" height="13" rx="4" />
-	<rect class="bar" x="14" y="151" width="96" height="13" rx="4" />
+	{bars.map((y) => (
+		<rect class="bar" x={TOPIC.x} y={y} width={TOPIC.w} height={TOPIC.barH} rx="4" />
+	))}
+
+	{/* Badge over the bars. The opaque disc is what makes it legible: laid
+	    straight on top, the mark competes with three bar edges running
+	    through it. */}
 	{
 		kafka && (
-			<g transform="translate(52 174) scale(0.8)">
-				<path class="mark" d={kafka.path} />
-				<title>{kafka.title}</title>
+			<g>
+				<circle class="badge" cx={topicMidX} cy={topicMidY} r="15" />
+				<g transform={`translate(${topicMidX - 8.4} ${topicMidY - 8.4}) scale(0.7)`}>
+					<path class="mark mark-bright" d={kafka.path} />
+					<title>{kafka.title}</title>
+				</g>
 			</g>
 		)
 	}
 
 	{/* Fan-out over a shared spine: four separate curves from one origin
 	    reads as spaghetti at this size. */}
-	<path class="track" d={`M110 140 H${SPINE_X}`} />
-	<path class="flow flow-fast" style={flowStyle(SPINE_X - 110)} d={`M110 140 H${SPINE_X}`} />
+	<path class="track" d={`M${TOPIC.x + TOPIC.w} ${topicMidY} H${SPINE_X}`} />
+	<path
+		class="flow flow-fast"
+		style={flowStyle(SPINE_X - (TOPIC.x + TOPIC.w))}
+		d={`M${TOPIC.x + TOPIC.w} ${topicMidY} H${SPINE_X}`}
+	/>
 	<path class="track" d={`M${SPINE_X} ${spineTop} V${spineBottom}`} />
 
 	{
@@ -138,3 +157,15 @@ const spineBottom = consumers[consumers.length - 1].y;
 		))
 	}
 </svg>
+
+<style>
+	.badge {
+		fill: var(--bg);
+		stroke: var(--border-strong);
+		stroke-width: 1;
+	}
+
+	.mark-bright {
+		fill: var(--text);
+	}
+</style>
