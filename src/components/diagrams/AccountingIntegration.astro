@@ -4,94 +4,114 @@ import { brandMark } from '../../lib/brandMark';
 /**
  * Self-serve accounting integration.
  *
- * The message is the contrast, not a literal scale: onboarding used to be a
- * long chain of manual hops, and became the client connecting their own
- * books in a couple of steps. The "90%" lives in the row's metric line
- * rather than in here, so the drawing never implies a measurement it is
- * not making.
+ * The real story is not just "fewer steps": three of the six old steps
+ * needed an engineer, and none of the new ones do. Engineer steps are
+ * therefore marked, and the absence of any marked node in the AFTER lane
+ * is the point the drawing is making.
  *
- * The two flow dots loop at different speeds, so the ratio is shown by the
- * animation rather than asserted by a label.
+ * The 90% and 10x live in the row's metric line rather than in here, so
+ * the diagram never implies a scale it is not actually drawing.
  */
 const xero = brandMark('xero');
 const quickbooks = brandMark('quickbooks');
 
-const beforeSteps = [118, 163, 208, 253, 298, 343];
+interface Step {
+	x: number;
+	label: string;
+	/** Needed an engineer. */
+	eng?: boolean;
+}
+
+const before: Step[] = [
+	{ x: 40, label: 'meeting' },
+	{ x: 118, label: 'request' },
+	{ x: 196, label: 'auth setup', eng: true },
+	{ x: 274, label: 'client auth' },
+	{ x: 352, label: 'data flow', eng: true },
+	{ x: 430, label: 'monitor', eng: true },
+];
+
+// Labels alternate height so neighbours cannot collide: at this spacing a
+// single row would overlap on the longer words.
+const labelY = (i: number) => (i % 2 === 0 ? 112 : 132);
 ---
 
 <svg
 	class="diagram"
-	viewBox="0 0 460 210"
+	viewBox="0 0 460 250"
 	role="img"
-	aria-label="Client onboarding before and after the self-serve integration"
+	aria-label="Client onboarding before and after: six steps with three engineer touchpoints, reduced to four steps with none"
 	fill="none"
 	stroke-linecap="round"
 	stroke-linejoin="round"
 >
-	<!-- ============ BEFORE: a long chain of manual hops ============ -->
-	<text class="lane-label" x="0" y="38">BEFORE</text>
+	<!-- ================= BEFORE ================= -->
+	<text class="lane-label" x="0" y="44">BEFORE</text>
+	<circle class="node-dot eng legend-dot" cx="86" cy="39" r="5" />
+	<text class="legend" x="98" y="44">engineer step</text>
 
-	<path class="track" d="M18 66 H434" />
-	<path class="flow flow-slow" style="--len: 416px; --gap: 402px" d="M18 66 H434" />
+	<path class="track" d="M40 86 H430" />
+	<path class="flow flow-slow" style="--len: 390px; --gap: 376px" d="M40 86 H430" />
 
-	<circle class="node-dot start" cx="18" cy="66" r="5" />
-	{beforeSteps.map((x) => <circle class="node-dot" cx={x} cy="66" r="4" />)}
-	<circle class="node-dot" cx="434" cy="66" r="5" />
+	{
+		before.map((s, i) => (
+			<>
+				<circle
+					class:list={['node-dot', { eng: s.eng }]}
+					cx={s.x}
+					cy="86"
+					r={s.eng ? 6 : 4.5}
+				/>
+				<text class:list={['step', { eng: s.eng }]} x={s.x} y={labelY(i)}>
+					{s.label}
+				</text>
+			</>
+		))
+	}
 
-	<!-- ============ AFTER: the client connects their own books ============ -->
-	<text class="lane-label accent" x="0" y="128">AFTER</text>
+	<!-- ================= AFTER ================= -->
+	<text class="lane-label accent" x="0" y="178">AFTER</text>
 
-	<g class="source">
-		<rect x="14" y="141" width="32" height="32" rx="9" />
-		{
-			xero ? (
-				<g transform="translate(20 147) scale(0.83)">
-					<path class="mark" d={xero.path} />
-					<title>{xero.title}</title>
-				</g>
-			) : (
-				<text class="fallback" x="30" y="161">XERO</text>
-			)
-		}
+	<path class="track" d="M40 210 H286" />
+	<path class="flow flow-fast" style="--len: 246px; --gap: 232px" d="M40 210 H286" />
+
+	<circle class="node-dot" cx="40" cy="210" r="4.5" />
+	<text class="step" x="40" y="238">platform</text>
+
+	{/* The two providers a client can connect, shown rather than named. */}
+	<rect class="box" x="92" y="194" width="72" height="32" rx="9" />
+	<g transform="translate(104 202) scale(0.67)">
+		{xero ? <path class="mark" d={xero.path} /> : <text class="fallback" x="12" y="18">X</text>}
+		{xero && <title>{xero.title}</title>}
 	</g>
-
-	<g class="source">
-		<rect x="54" y="141" width="32" height="32" rx="9" />
+	<g transform="translate(132 202) scale(0.67)">
 		{
 			quickbooks ? (
-				<g transform="translate(60 147) scale(0.83)">
-					<path class="mark" d={quickbooks.path} />
-					<title>{quickbooks.title}</title>
-				</g>
+				<path class="mark" d={quickbooks.path} />
 			) : (
-				<text class="fallback" x="70" y="161">QB</text>
+				<text class="fallback" x="12" y="18">QB</text>
 			)
 		}
+		{quickbooks && <title>{quickbooks.title}</title>}
 	</g>
+	<text class="step" x="128" y="238">connect</text>
 
-	{/*
-	  One continuous track with the box drawn over it on a solid fill. A
-	  record entering a node and emerging is ordinary diagram semantics,
-	  and it keeps the dash one consistent length along the whole lane.
-	*/}
-	<path class="track" d="M92 157 H300" />
-	<path class="flow flow-fast" style="--len: 208px; --gap: 194px" d="M92 157 H300" />
+	<circle class="node-dot" cx="212" cy="210" r="4.5" />
+	<text class="step" x="212" y="238">client</text>
 
-	<rect class="box" x="126" y="141" width="100" height="32" rx="9" />
-	<text class="box-label" x="176" y="161">Self-serve</text>
-
-	<circle class="live-halo" cx="306" cy="157" r="11" />
-	<circle class="node-dot live" cx="306" cy="157" r="5.5" />
+	<circle class="live-halo" cx="286" cy="210" r="11" />
+	<circle class="node-dot live" cx="286" cy="210" r="6" />
+	<text class="step accent" x="286" y="238">done</text>
 </svg>
 
 <style>
 	.diagram {
 		/* --- Flow tuning --------------------------------------------
-		 * One edit changes the pace of both lanes. The ratio between
-		 * them is the point, so they are derived from one base.
+		 * AFTER must be faster in absolute terms as well as shorter, or
+		 * the animation argues against the point the diagram is making.
 		 */
-		--flow-base: 1.6s; /* AFTER: 208 units, ~130 u/s */
-		--flow-slow: 8s; /* BEFORE: 416 units, ~52 u/s */
+		--flow-base: 1.6s; /* AFTER: 246 units, ~154 u/s */
+		--flow-slow: 8s; /* BEFORE: 390 units, ~49 u/s */
 		--flow-dash: 14px;
 
 		width: 100%;
@@ -111,16 +131,21 @@ const beforeSteps = [118, 163, 208, 253, 298, 343];
 		stroke-width: 1;
 	}
 
-	.start {
-		fill: var(--text-faint);
-	}
-
-	.live {
+	/* Steps that consumed engineering time. Three in the old flow, none in
+	   the new one, which is the comparison worth making. */
+	.node-dot.eng {
 		fill: var(--accent);
 		stroke: var(--accent);
 	}
 
-	/* Marks the end state as arrived at, without needing a label. */
+	/* A ring, not a fill: solid accent is reserved for engineer steps, so
+	   the final node cannot be misread as one more of them. */
+	.live {
+		fill: var(--bg);
+		stroke: var(--accent);
+		stroke-width: 2.5;
+	}
+
 	.live-halo {
 		fill: none;
 		stroke: var(--accent);
@@ -130,12 +155,6 @@ const beforeSteps = [118, 163, 208, 253, 298, 343];
 
 	.box {
 		fill: var(--bg-raised);
-		stroke: var(--accent);
-		stroke-width: 1;
-	}
-
-	.source rect {
-		fill: var(--surface);
 		stroke: var(--border-strong);
 		stroke-width: 1;
 	}
@@ -144,12 +163,9 @@ const beforeSteps = [118, 163, 208, 253, 298, 343];
 		fill: var(--text-muted);
 	}
 
-	/* Sized in viewBox units, so these shrink with the drawing. At 375px
-	 * the diagram renders at roughly 0.65 scale, so 11 here landed at
-	 * about 7px on screen. 16 keeps it legible where it matters most. */
-	.lane-label,
-	.box-label,
-	.fallback {
+	/* Sized in viewBox units, so these shrink with the drawing. At 375px it
+	 * renders near 0.68 scale, so anything under ~15 here is unreadable. */
+	.lane-label {
 		font-family: var(--font-mono);
 		fill: var(--text-faint);
 		font-size: 16px;
@@ -160,32 +176,39 @@ const beforeSteps = [118, 163, 208, 253, 298, 343];
 		fill: var(--accent);
 	}
 
-	.box-label {
-		fill: var(--text);
+	.step {
+		font-family: var(--font-mono);
+		fill: var(--text-faint);
+		font-size: 14px;
 		text-anchor: middle;
-		letter-spacing: 0.04em;
+	}
+
+	.step.eng,
+	.step.accent {
+		fill: var(--accent);
+	}
+
+	.legend {
+		font-family: var(--font-mono);
+		fill: var(--text-faint);
+		font-size: 13px;
+		letter-spacing: 0.06em;
 	}
 
 	.fallback {
-		text-anchor: middle;
+		font-family: var(--font-mono);
+		fill: var(--text-muted);
 		font-size: 11px;
+		text-anchor: middle;
 	}
 
-	/* --len is each path's real length, declared per path WITH units.
-	 * Unitless, calc(-1 * var(--len)) does not resolve to a valid length
-	 * and the keyframe is dropped silently: the animation still runs and
-	 * reports progress, it just moves nothing.
-	 *
-	 * Normalising with pathLength would make the dash a PERCENTAGE of the
-	 * path, so a short lane would get a proportionally tiny dash and the
-	 * two lanes would not look like the same thing moving.
-	 */
+	/* --len is each path's real length, WITH units: unitless, the keyframe's
+	 * calc is invalid and the animation runs while moving nothing. --gap is
+	 * precomputed because calc() inside a dasharray list is left unresolved
+	 * and drops the whole pattern. */
 	.flow {
 		stroke: var(--accent);
 		stroke-width: 2;
-		/* Plain values, no calc: calc() inside a dasharray LIST is left
-		   unresolved, the whole pattern is ignored and the line paints
-		   solid. --gap is therefore precomputed per path as len - dash. */
 		stroke-dasharray: var(--flow-dash) var(--gap);
 		animation: flow var(--flow-base) linear infinite;
 	}

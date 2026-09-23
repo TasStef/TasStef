@@ -24,12 +24,14 @@ const projects = defineCollection({
 			'reporting-pipelines',
 			'support-automation',
 		]),
-		/** Headline outcome, where one exists. */
-		metric: z
-			.object({
-				value: z.string(),
-				label: z.string(),
-			})
+		/** Headline outcomes. Kept plural: the strongest work has more than one. */
+		metrics: z
+			.array(
+				z.object({
+					value: z.string(),
+					label: z.string(),
+				})
+			)
 			.optional(),
 		/* Optional: these are internal systems, so most will never be public.
 		 * Kept for any future project that is. */
