@@ -250,9 +250,43 @@ export function initCollapsibles() {
 	});
 }
 
+/* ------------------------------------------------------------------ */
+/* Diagram flows                                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Pauses each diagram's flow animation while its row is off screen.
+ *
+ * The diagrams loop continuously by design, but six of them carry
+ * seventeen animated paths between them, and most are off screen at any
+ * moment given the rows are full width. Pausing what cannot be seen keeps
+ * every visible diagram alive at a fraction of the cost.
+ *
+ * Gated on a root class the script adds itself, so with JS unavailable the
+ * animations simply run as normal rather than being stuck paused.
+ */
+export function initDiagrams() {
+	const diagrams = document.querySelectorAll<HTMLElement>('.diagram');
+	if (!diagrams.length || !('IntersectionObserver' in window)) return;
+
+	document.documentElement.classList.add('has-diagram-pause');
+
+	const io = new IntersectionObserver(
+		(entries) => {
+			for (const e of entries) {
+				e.target.classList.toggle('is-onscreen', e.isIntersecting);
+			}
+		},
+		{ rootMargin: '120px 0px' }
+	);
+
+	for (const d of diagrams) io.observe(d);
+}
+
 export function initMotion() {
 	initReveal();
 	initScramble();
 	initCounters();
 	initCollapsibles();
+	initDiagrams();
 }

@@ -1,0 +1,48 @@
+---
+import { flowStyle } from '../../lib/diagram';
+
+/**
+ * Feature flag rollouts.
+ *
+ * Unleash was the tool; the work was spotting that the team needed flags at
+ * all and building the pattern for using them. The diagram therefore shows
+ * the branch, not the vendor.
+ *
+ * Unleash has no mark in simple-icons, so it appears as a mono label. That
+ * is the documented fallback and reads as deliberate next to the rest.
+ */
+---
+
+<svg
+	class="diagram"
+	viewBox="0 0 460 200"
+	role="img"
+	aria-label="Traffic reaching a feature flag and splitting between a new and an existing path"
+	fill="none"
+	stroke-linecap="round"
+	stroke-linejoin="round"
+>
+	<text class="lane-label" x="0" y="26">ROLLOUT</text>
+
+	<path class="track" d="M20 100 H176" />
+	<path class="flow flow-fast" style={flowStyle(156)} d="M20 100 H176" />
+	<circle class="node-dot" cx="20" cy="100" r="4.5" />
+	<text class="step start" x="14" y="128">traffic</text>
+
+	{/* Diamond: the conventional shape for a branch. */}
+	<path class="diamond" d="M212 66 L246 100 L212 134 L178 100 Z" />
+	<text class="step" x="212" y="56">flag</text>
+	<text class="fallback" x="212" y="156">Unleash</text>
+
+	{/* New path: a slice of traffic. */}
+	<path class="track" d="M246 92 H292 Q308 92 308 68 V54 H344" />
+	<path class="flow flow-fast" style={flowStyle(126)} d="M246 92 H292 Q308 92 308 68 V54 H344" />
+	<rect class="box box-accent" x="348" y="38" width="104" height="32" rx="9" />
+	<text class="step accent" x="400" y="58">new path</text>
+
+	{/* Existing path: everyone else, untouched. */}
+	<path class="track" d="M246 108 H292 Q308 108 308 132 V146 H344" />
+	<path class="flow flow-slow" style={flowStyle(126)} d="M246 108 H292 Q308 108 308 132 V146 H344" />
+	<rect class="box" x="348" y="130" width="104" height="32" rx="9" />
+	<text class="step" x="400" y="150">existing</text>
+</svg>

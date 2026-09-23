@@ -1,5 +1,12 @@
 ---
+import '../styles/diagram.css';
+
 import AccountingIntegration from './diagrams/AccountingIntegration.astro';
+import WebhookPayments from './diagrams/WebhookPayments.astro';
+import EventServices from './diagrams/EventServices.astro';
+import FeatureFlags from './diagrams/FeatureFlags.astro';
+import ReportingPipelines from './diagrams/ReportingPipelines.astro';
+import SupportAutomation from './diagrams/SupportAutomation.astro';
 
 interface Props {
 	name: string;
@@ -9,3 +16,8 @@ const { name } = Astro.props;
 ---
 
 {name === 'accounting-integration' && <AccountingIntegration />}
+{name === 'webhook-payments' && <WebhookPayments />}
+{name === 'event-services' && <EventServices />}
+{name === 'feature-flags' && <FeatureFlags />}
+{name === 'reporting-pipelines' && <ReportingPipelines />}
+{name === 'support-automation' && <SupportAutomation />}

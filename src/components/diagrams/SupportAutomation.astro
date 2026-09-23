@@ -1,0 +1,81 @@
+---
+import { brandMark } from '../../lib/brandMark';
+import { flowStyle, spread } from '../../lib/diagram';
+
+/**
+ * Support automation and knowledge base.
+ *
+ * Incoming tickets meet a knowledge base that answers a share of them
+ * outright; the rest route on to the queue. The deflected branch is the
+ * whole point, so it is the one drawn in accent.
+ */
+const jira = brandMark('jira');
+const confluence = brandMark('confluence');
+
+const incoming = spread([{}, {}, {}, {}, {}], 14, 86);
+
+const KB_X = 160;
+const KB_W = 124;
+const KB_MID = KB_X + KB_W / 2;
+
+const Q_X = 348;
+const Q_W = 104;
+---
+
+<svg
+	class="diagram"
+	viewBox="0 0 460 210"
+	role="img"
+	aria-label="Incoming tickets meeting a knowledge base, a share answered there and the rest routed to the queue"
+	fill="none"
+	stroke-linecap="round"
+	stroke-linejoin="round"
+>
+	<text class="lane-label" x="0" y="26">SUPPORT</text>
+
+	{incoming.map((n) => <circle class="node-dot" cx={n.x} cy="120" r="4.5" />)}
+	<text class="step start" x="10" y="150">tickets</text>
+
+	<path class="track" d={`M92 120 H${KB_X - 4}`} />
+	<path class="flow flow-fast" style={flowStyle(KB_X - 96)} d={`M92 120 H${KB_X - 4}`} />
+
+	{/* Knowledge base. Mark sits left of the label rather than behind it:
+	    centred text over a centred mark renders one on top of the other. */}
+	<rect class="box box-accent" x={KB_X} y="102" width={KB_W} height="36" rx="9" />
+	{
+		confluence && (
+			<g transform={`translate(${KB_X + 12} 111) scale(0.75)`}>
+				<path class="mark" d={confluence.path} />
+				<title>{confluence.title}</title>
+			</g>
+		)
+	}
+	<text class="step start" x={KB_X + 38} y="125">knowledge</text>
+
+	{/* Deflected: answered without reaching a person. Runs upward FROM the
+	    box, not through it. */}
+	<path class="track" d={`M${KB_MID} 102 V64`} />
+	<path class="flow flow-fast" style={flowStyle(38)} d={`M${KB_MID} 102 V64`} />
+	<circle class="node-dot live" cx={KB_MID} cy="60" r="5" />
+	<text class="step accent" x={KB_MID} y="46">answered here</text>
+
+	{/* The remainder routes on. Slower: this is the path that costs time. */}
+	<path class="track" d={`M${KB_X + KB_W} 120 H${Q_X - 4}`} />
+	<path
+		class="flow flow-slow"
+		style={flowStyle(Q_X - 4 - (KB_X + KB_W))}
+		d={`M${KB_X + KB_W} 120 H${Q_X - 4}`}
+	/>
+
+	<rect class="box" x={Q_X} y="102" width={Q_W} height="36" rx="9" />
+	{
+		jira && (
+			<g transform={`translate(${Q_X + 12} 111) scale(0.75)`}>
+				<path class="mark" d={jira.path} />
+				<title>{jira.title}</title>
+			</g>
+		)
+	}
+	<text class="step start" x={Q_X + 38} y="125">queue</text>
+	<text class="step end" x={Q_X + Q_W} y="160">the rest</text>
+</svg>

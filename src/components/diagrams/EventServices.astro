@@ -1,0 +1,66 @@
+---
+import { brandMark } from '../../lib/brandMark';
+import { flowStyle } from '../../lib/diagram';
+
+/**
+ * Features built across microservices over Kafka.
+ *
+ * Deliberately framed as the pattern worked in, not as a platform built:
+ * a request is published, consumers pick it up, and the reply finds its
+ * way back to whoever asked. That is what the work actually was.
+ */
+const kafka = brandMark('apachekafka');
+---
+
+<svg
+	class="diagram"
+	viewBox="0 0 460 220"
+	role="img"
+	aria-label="A service publishing to a Kafka topic, consumers reacting, and a reply returning to the requester"
+	fill="none"
+	stroke-linecap="round"
+	stroke-linejoin="round"
+>
+	<text class="lane-label" x="0" y="24">MICROSERVICES</text>
+
+	{/* Requester */}
+	<rect class="box box-accent" x="8" y="76" width="86" height="34" rx="9" />
+	<text class="step" x="51" y="97">requester</text>
+
+	<path class="track" d="M94 93 H168" />
+	<path class="flow flow-fast" style={flowStyle(74)} d="M94 93 H168" />
+
+	{/* Topic: stacked bars, the conventional shape for a log. */}
+	<rect class="bar" x="172" y="68" width="88" height="14" rx="4" />
+	<rect class="bar" x="172" y="86" width="88" height="14" rx="4" />
+	<rect class="bar" x="172" y="104" width="88" height="14" rx="4" />
+	{
+		kafka && (
+			<g transform="translate(206 129) scale(0.83)">
+				<path class="mark" d={kafka.path} />
+				<title>{kafka.title}</title>
+			</g>
+		)
+	}
+	<text class="step" x="216" y="60">topic</text>
+
+	{/* Fan-out to consumers */}
+	<path class="track" d="M260 86 H300 Q316 86 316 62 V48 H352" />
+	<path class="flow flow-fast" style={flowStyle(130)} d="M260 86 H300 Q316 86 316 62 V48 H352" />
+	<rect class="box" x="356" y="32" width="96" height="32" rx="9" />
+	<text class="step" x="404" y="52">consumer</text>
+
+	<path class="track" d="M260 100 H300 Q316 100 316 124 V138 H352" />
+	<path class="flow flow-fast" style={flowStyle(130)} d="M260 100 H300 Q316 100 316 124 V138 H352" />
+	<rect class="box" x="356" y="122" width="96" height="32" rx="9" />
+	<text class="step" x="404" y="142">consumer</text>
+
+	{/* Reply: the part that mattered, routed back to whoever asked. */}
+	<path class="track" d="M404 154 V186 Q404 198 388 198 H67 Q51 198 51 186 V110" />
+	<path
+		class="flow flow-slow"
+		style={flowStyle(470)}
+		d="M404 154 V186 Q404 198 388 198 H67 Q51 198 51 186 V110"
+	/>
+	<text class="step" x="228" y="192">reply to requester</text>
+</svg>

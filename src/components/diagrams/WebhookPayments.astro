@@ -1,0 +1,72 @@
+---
+import { brandMark } from '../../lib/brandMark';
+import { flowStyle } from '../../lib/diagram';
+
+/**
+ * Webhook-driven payments.
+ *
+ * The point is the boundary: events originate outside the system and cross
+ * into it, where they become payment records without anyone keying them in.
+ */
+const xero = brandMark('xero');
+const quickbooks = brandMark('quickbooks');
+
+const BOUNDARY = 168;
+const TRACK_START = 116;
+const TRACK_END = 420;
+---
+
+<svg
+	class="diagram"
+	viewBox="0 0 460 200"
+	role="img"
+	aria-label="Provider webhooks crossing into the system and becoming payments"
+	fill="none"
+	stroke-linecap="round"
+	stroke-linejoin="round"
+>
+	<text class="lane-label" x="0" y="26">THIRD PARTY</text>
+	<text class="lane-label accent" x={BOUNDARY + 14} y="26">OUR SYSTEM</text>
+
+	<path class="boundary" d={`M${BOUNDARY} 40 V184`} />
+
+	{/* Providers, shown rather than named. */}
+	<rect class="box" x="10" y="62" width="50" height="34" rx="9" />
+	<g transform="translate(23 71) scale(0.67)">
+		{xero ? <path class="mark" d={xero.path} /> : <text class="fallback" x="12" y="18">X</text>}
+		{xero && <title>{xero.title}</title>}
+	</g>
+
+	<rect class="box" x="10" y="110" width="50" height="34" rx="9" />
+	<g transform="translate(23 119) scale(0.67)">
+		{
+			quickbooks ? (
+				<path class="mark" d={quickbooks.path} />
+			) : (
+				<text class="fallback" x="12" y="18">QB</text>
+			)
+		}
+		{quickbooks && <title>{quickbooks.title}</title>}
+	</g>
+
+	{/* Both providers converge onto one inbound path. */}
+	<path class="track" d="M60 79 H88 Q104 79 104 103 V113" />
+	<path class="track" d="M60 127 H88 Q104 127 104 103" />
+
+	<path class="track" d={`M${TRACK_START} 103 H${TRACK_END}`} />
+	<path
+		class="flow flow-fast"
+		style={flowStyle(TRACK_END - TRACK_START)}
+		d={`M${TRACK_START} 103 H${TRACK_END}`}
+	/>
+
+	<circle class="node-dot" cx={TRACK_START} cy="103" r="4.5" />
+	<text class="step" x={TRACK_START} y="132">webhook</text>
+
+	<rect class="box box-accent" x="226" y="87" width="94" height="32" rx="9" />
+	<text class="step" x="273" y="107">validate</text>
+
+	<circle class="live-halo" cx={TRACK_END} cy="103" r="11" />
+	<circle class="node-dot live" cx={TRACK_END} cy="103" r="6" />
+	<text class="step accent end" x={TRACK_END + 12} y="132">payment</text>
+</svg>

@@ -1,0 +1,192 @@
+/*
+ * Shared diagram vocabulary.
+ *
+ * Global rather than scoped per component on purpose: six bespoke diagrams
+ * each carrying their own copy of these rules would drift apart, and the
+ * whole point is that they read as one system. A component adds styles of
+ * its own only for something genuinely unique to it.
+ *
+ * Everything is namespaced under .diagram.
+ */
+
+.diagram {
+	/* Flow tuning. A lane that is meant to read as "faster" must be faster
+	 * in absolute terms, not merely shorter, or the motion argues against
+	 * the drawing. */
+	--flow-base: 1.6s;
+	--flow-slow: 8s;
+	--flow-dash: 14px;
+
+	width: 100%;
+	height: auto;
+	display: block;
+	overflow: visible;
+}
+
+/* ---------- Structure ---------- */
+
+.diagram .track {
+	stroke: var(--border-strong);
+	stroke-width: 1;
+}
+
+/* System edge, with third parties outside it. */
+.diagram .boundary {
+	stroke: var(--border-strong);
+	stroke-width: 1;
+	stroke-dasharray: 3 4;
+}
+
+.diagram .node-dot {
+	fill: var(--bg);
+	stroke: var(--border-strong);
+	stroke-width: 1;
+}
+
+/* Reserved meaning: a solid accent node is a step that cost a person's
+ * time. Nothing else may use a solid accent fill, or the legend lies. */
+.diagram .node-dot.eng {
+	fill: var(--accent);
+	stroke: var(--accent);
+}
+
+/* End state: a ring, so it cannot be confused with the above. */
+.diagram .live {
+	fill: var(--bg);
+	stroke: var(--accent);
+	stroke-width: 2.5;
+}
+
+.diagram .live-halo {
+	fill: none;
+	stroke: var(--accent);
+	stroke-width: 1;
+	opacity: 0.28;
+}
+
+.diagram .box {
+	fill: var(--bg-raised);
+	stroke: var(--border-strong);
+	stroke-width: 1;
+}
+
+.diagram .box-accent {
+	stroke: var(--accent);
+}
+
+/* Topic, queue or log. */
+.diagram .bar {
+	fill: var(--bg-raised);
+	stroke: var(--border-strong);
+	stroke-width: 1;
+}
+
+/* Decision or branch. */
+.diagram .diamond {
+	fill: var(--bg-raised);
+	stroke: var(--accent);
+	stroke-width: 1;
+}
+
+.diagram .mark {
+	fill: var(--text-muted);
+}
+
+/* ---------- Type ----------
+ * Sized in viewBox units, so it shrinks with the drawing. At 375px these
+ * render near 0.68 scale, so anything below ~14 here is unreadable.
+ */
+
+.diagram .lane-label {
+	font-family: var(--font-mono);
+	fill: var(--text-faint);
+	font-size: 16px;
+	letter-spacing: 0.1em;
+}
+
+.diagram .lane-label.accent {
+	fill: var(--accent);
+}
+
+.diagram .step {
+	font-family: var(--font-mono);
+	fill: var(--text-faint);
+	font-size: 14px;
+	text-anchor: middle;
+}
+
+.diagram .step.eng,
+.diagram .step.accent {
+	fill: var(--accent);
+}
+
+.diagram .step.start {
+	text-anchor: start;
+}
+
+.diagram .step.end {
+	text-anchor: end;
+}
+
+.diagram .legend {
+	font-family: var(--font-mono);
+	fill: var(--text-faint);
+	font-size: 13px;
+	letter-spacing: 0.06em;
+}
+
+.diagram .fallback {
+	font-family: var(--font-mono);
+	fill: var(--text-muted);
+	font-size: 13px;
+	text-anchor: middle;
+}
+
+/* ---------- Flow ----------
+ * --len is the path's real length, declared per path WITH units: unitless,
+ * the keyframe's calc is invalid and the animation runs while moving
+ * nothing. --gap is precomputed because calc() inside a stroke-dasharray
+ * LIST is left unresolved, which drops the pattern and paints the line
+ * solid.
+ */
+
+.diagram .flow {
+	stroke: var(--accent);
+	stroke-width: 2;
+	stroke-dasharray: var(--flow-dash) var(--gap);
+	animation: diagram-flow var(--flow-base) linear infinite;
+}
+
+.diagram .flow-slow {
+	animation-duration: var(--flow-slow);
+}
+
+.diagram .flow-fast {
+	animation-duration: var(--flow-base);
+}
+
+@keyframes diagram-flow {
+	to {
+		stroke-dashoffset: calc(-1 * var(--len));
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.diagram .flow {
+		animation: none;
+		opacity: 0;
+	}
+}
+
+/* ---------- Off-screen pausing ----------
+ * The root class is added by initDiagrams() in src/scripts/motion.ts. It is
+ * deliberately not the default: without it, a browser that never ran the
+ * script would leave every diagram frozen rather than simply animating.
+ */
+:root.has-diagram-pause .diagram .flow {
+	animation-play-state: paused;
+}
+
+:root.has-diagram-pause .diagram.is-onscreen .flow {
+	animation-play-state: running;
+}

@@ -1,0 +1,73 @@
+---
+import { flowStyle } from '../../lib/diagram';
+
+/**
+ * Scheduled reporting pipelines.
+ *
+ * Runs on a timer, pulls from several systems, and lands in an inbox
+ * without anyone assembling it. The fan-in is the shape worth showing.
+ */
+const rowY = [50, 100, 150];
+---
+
+<svg
+	class="diagram"
+	viewBox="0 0 460 200"
+	role="img"
+	aria-label="A schedule triggering a pull from several systems, aggregated and emailed as a daily summary"
+	fill="none"
+	stroke-linecap="round"
+	stroke-linejoin="round"
+>
+	<text class="lane-label" x="0" y="24">SCHEDULED</text>
+
+	{/* Clock: the trigger is a time, not a person. */}
+	<circle class="node-dot eng" cx="28" cy="100" r="11" />
+	<path class="clock-hand" d="M28 100 V94 M28 100 H33" />
+	<text class="step start" x="14" y="132">daily</text>
+
+	{/* Sources fan in. */}
+	{
+		rowY.map((y) => (
+			<>
+				<rect class="box" x="76" y={y - 16} width="88" height="32" rx="9" />
+				<text class="step" x="120" y={y + 4}>
+					source
+				</text>
+			</>
+		))
+	}
+
+	<path class="track" d="M164 50 H208 Q224 50 224 74 V92" />
+	<path class="flow flow-fast" style={flowStyle(110)} d="M164 50 H208 Q224 50 224 74 V92" />
+
+	<path class="track" d="M164 100 H224" />
+	<path class="flow flow-fast" style={flowStyle(60)} d="M164 100 H224" />
+
+	<path class="track" d="M164 150 H208 Q224 150 224 126 V108" />
+	<path class="flow flow-fast" style={flowStyle(110)} d="M164 150 H208 Q224 150 224 126 V108" />
+
+	<rect class="box box-accent" x="228" y="84" width="96" height="32" rx="9" />
+	<text class="step" x="276" y="104">aggregate</text>
+
+	<path class="track" d="M324 100 H392" />
+	<path class="flow flow-fast" style={flowStyle(68)} d="M324 100 H392" />
+
+	{/* Envelope: the output is a mail, not a dashboard nobody opens. */}
+	<rect class="box" x="396" y="84" width="48" height="32" rx="6" />
+	<path class="envelope" d="M400 90 L420 104 L440 90" />
+	<text class="step end" x="452" y="132">summary</text>
+</svg>
+
+<style>
+	.clock-hand {
+		stroke: var(--accent-ink);
+		stroke-width: 1.6;
+	}
+
+	.envelope {
+		stroke: var(--text-muted);
+		stroke-width: 1.2;
+		fill: none;
+	}
+</style>
