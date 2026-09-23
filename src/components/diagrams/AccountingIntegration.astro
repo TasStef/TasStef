@@ -16,24 +16,61 @@ const xero = brandMark('xero');
 const quickbooks = brandMark('quickbooks');
 
 interface Step {
-	x: number;
 	label: string;
 	/** Needed an engineer. */
 	eng?: boolean;
 }
 
-const before: Step[] = [
-	{ x: 40, label: 'meeting' },
-	{ x: 118, label: 'request' },
-	{ x: 196, label: 'auth setup', eng: true },
-	{ x: 274, label: 'client auth' },
-	{ x: 352, label: 'data flow', eng: true },
-	{ x: 430, label: 'monitor', eng: true },
-];
+/** Both lanes start here; each ends where its own track ends. */
+const LANE_START = 40;
+const BEFORE_END = 430;
+const AFTER_END = 286;
+
+/**
+ * Spaces nodes evenly between two x positions.
+ *
+ * Positions are derived rather than written down so adding or removing a
+ * step re-balances the lane on its own. Hardcoded coordinates meant a
+ * removed node left a gap and the rest stayed put.
+ */
+function spread<T>(items: T[], start: number, end: number): (T & { x: number })[] {
+	if (items.length === 1) {
+		return [{ ...items[0], x: (start + end) / 2 }];
+	}
+	const step = (end - start) / (items.length - 1);
+	return items.map((item, i) => ({ ...item, x: start + i * step }));
+}
+
+const before = spread<Step>(
+	[
+		{ label: 'request' },
+		{ label: 'auth setup', eng: true },
+		{ label: 'client auth' },
+		{ label: 'data flow', eng: true },
+		{ label: 'monitor', eng: true },
+	],
+	LANE_START,
+	BEFORE_END
+);
+
+const after = spread<{ label: string; kind: 'dot' | 'box' | 'end' }>(
+	[
+		{ label: 'platform', kind: 'dot' },
+		{ label: 'connect', kind: 'box' },
+		{ label: 'done', kind: 'end' },
+	],
+	LANE_START,
+	AFTER_END
+);
 
 // Labels alternate height so neighbours cannot collide: at this spacing a
 // single row would overlap on the longer words.
 const labelY = (i: number) => (i % 2 === 0 ? 112 : 132);
+
+const DASH = 14;
+const BOX_W = 72;
+const MARK_SCALE = 0.67;
+const MARK_W = 24 * MARK_SCALE;
 ---
 
 <svg
@@ -50,8 +87,12 @@ const labelY = (i: number) => (i % 2 === 0 ? 112 : 132);
 	<circle class="node-dot eng legend-dot" cx="86" cy="39" r="5" />
 	<text class="legend" x="98" y="44">engineer step</text>
 
-	<path class="track" d="M40 86 H430" />
-	<path class="flow flow-slow" style="--len: 390px; --gap: 376px" d="M40 86 H430" />
+	<path class="track" d={`M${LANE_START} 86 H${BEFORE_END}`} />
+	<path
+		class="flow flow-slow"
+		style={`--len: ${BEFORE_END - LANE_START}px; --gap: ${BEFORE_END - LANE_START - DASH}px; --flow-dash: ${DASH}px`}
+		d={`M${LANE_START} 86 H${BEFORE_END}`}
+	/>
 
 	{
 		before.map((s, i) => (
@@ -72,36 +113,61 @@ const labelY = (i: number) => (i % 2 === 0 ? 112 : 132);
 	<!-- ================= AFTER ================= -->
 	<text class="lane-label accent" x="0" y="178">AFTER</text>
 
-	<path class="track" d="M40 210 H286" />
-	<path class="flow flow-fast" style="--len: 246px; --gap: 232px" d="M40 210 H286" />
+	<path class="track" d={`M${LANE_START} 210 H${AFTER_END}`} />
+	<path
+		class="flow flow-fast"
+		style={`--len: ${AFTER_END - LANE_START}px; --gap: ${AFTER_END - LANE_START - DASH}px; --flow-dash: ${DASH}px`}
+		d={`M${LANE_START} 210 H${AFTER_END}`}
+	/>
 
-	<circle class="node-dot" cx="40" cy="210" r="4.5" />
-	<text class="step" x="40" y="238">platform</text>
+	{
+		after.map((n) => (
+			<>
+				{n.kind === 'dot' && <circle class="node-dot" cx={n.x} cy="210" r="4.5" />}
 
-	{/* The two providers a client can connect, shown rather than named. */}
-	<rect class="box" x="92" y="194" width="72" height="32" rx="9" />
-	<g transform="translate(104 202) scale(0.67)">
-		{xero ? <path class="mark" d={xero.path} /> : <text class="fallback" x="12" y="18">X</text>}
-		{xero && <title>{xero.title}</title>}
-	</g>
-	<g transform="translate(132 202) scale(0.67)">
-		{
-			quickbooks ? (
-				<path class="mark" d={quickbooks.path} />
-			) : (
-				<text class="fallback" x="12" y="18">QB</text>
-			)
-		}
-		{quickbooks && <title>{quickbooks.title}</title>}
-	</g>
-	<text class="step" x="128" y="238">connect</text>
+				{/* The two providers a client can connect, shown rather than named. */}
+				{n.kind === 'box' && (
+					<>
+						<rect
+							class="box"
+							x={n.x - BOX_W / 2}
+							y="194"
+							width={BOX_W}
+							height="32"
+							rx="9"
+						/>
+						<g transform={`translate(${n.x - MARK_W - 2} 202) scale(${MARK_SCALE})`}>
+							{xero ? (
+								<path class="mark" d={xero.path} />
+							) : (
+								<text class="fallback" x="12" y="18">X</text>
+							)}
+							{xero && <title>{xero.title}</title>}
+						</g>
+						<g transform={`translate(${n.x + 2} 202) scale(${MARK_SCALE})`}>
+							{quickbooks ? (
+								<path class="mark" d={quickbooks.path} />
+							) : (
+								<text class="fallback" x="12" y="18">QB</text>
+							)}
+							{quickbooks && <title>{quickbooks.title}</title>}
+						</g>
+					</>
+				)}
 
-	<circle class="node-dot" cx="212" cy="210" r="4.5" />
-	<text class="step" x="212" y="238">client</text>
+				{n.kind === 'end' && (
+					<>
+						<circle class="live-halo" cx={n.x} cy="210" r="11" />
+						<circle class="node-dot live" cx={n.x} cy="210" r="6" />
+					</>
+				)}
 
-	<circle class="live-halo" cx="286" cy="210" r="11" />
-	<circle class="node-dot live" cx="286" cy="210" r="6" />
-	<text class="step accent" x="286" y="238">done</text>
+				<text class:list={['step', { accent: n.kind === 'end' }]} x={n.x} y="238">
+					{n.label}
+				</text>
+			</>
+		))
+	}
 </svg>
 
 <style>
