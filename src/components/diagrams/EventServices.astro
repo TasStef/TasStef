@@ -3,64 +3,102 @@ import { brandMark } from '../../lib/brandMark';
 import { flowStyle } from '../../lib/diagram';
 
 /**
- * Features built across microservices over Kafka.
+ * The "send back" action.
  *
- * Deliberately framed as the pattern worked in, not as a platform built:
- * a request is published, consumers pick it up, and the reply finds its
- * way back to whoever asked. That is what the work actually was.
+ * Shape of the real thing: an action in the monolith makes a round trip to
+ * a service, then the result fans out over Kafka to four consumers that
+ * each do their own job with it.
+ *
+ * Drawn as the work actually was, rather than as ownership of the
+ * messaging platform.
  */
 const kafka = brandMark('apachekafka');
+
+const SPINE_X = 206;
+const CONSUMER_X = 276;
+const CONSUMER_W = 176;
+
+const consumers = [
+	{ y: 74, label: 'elastic reindex' },
+	{ y: 118, label: 'audit' },
+	{ y: 162, label: 'aggregation' },
+	{ y: 206, label: 'email' },
+];
+
+const spineTop = consumers[0].y;
+const spineBottom = consumers[consumers.length - 1].y;
 ---
 
 <svg
 	class="diagram"
-	viewBox="0 0 460 220"
+	viewBox="0 0 460 240"
 	role="img"
-	aria-label="A service publishing to a Kafka topic, consumers reacting, and a reply returning to the requester"
+	aria-label="A send back action calling a service from the monolith, then fanning out over Kafka to reindexing, audit, aggregation and email"
 	fill="none"
 	stroke-linecap="round"
 	stroke-linejoin="round"
 >
-	<text class="lane-label" x="0" y="24">MICROSERVICES</text>
+	<text class="lane-label" x="0" y="14">SEND BACK</text>
 
-	{/* Requester */}
-	<rect class="box box-accent" x="8" y="76" width="86" height="34" rx="9" />
-	<text class="step" x="51" y="97">requester</text>
+	{/* Round trip: the monolith asks, the service answers. */}
+	<rect class="box box-accent" x="8" y="26" width="104" height="34" rx="9" />
+	<text class="step" x="60" y="47">monolith</text>
 
-	<path class="track" d="M94 93 H168" />
-	<path class="flow flow-fast" style={flowStyle(74)} d="M94 93 H168" />
+	<rect class="box" x="186" y="26" width="104" height="34" rx="9" />
+	<text class="step" x="238" y="47">AF service</text>
+
+	<path class="track" d="M112 36 H186" />
+	<path class="flow flow-fast" style={flowStyle(74)} d="M112 36 H186" />
+	<text class="step" x="149" y="22">request</text>
+
+	<path class="track" d="M186 50 H112" />
+	<path class="flow flow-fast" style={flowStyle(74)} d="M186 50 H112" />
+	<text class="step" x="149" y="72">reply</text>
+
+	{/* Then the result is published, and the monolith stops being involved. */}
+	<path class="track" d="M60 60 V113" />
+	<path class="flow flow-fast" style={flowStyle(53)} d="M60 60 V113" />
 
 	{/* Topic: stacked bars, the conventional shape for a log. */}
-	<rect class="bar" x="172" y="68" width="88" height="14" rx="4" />
-	<rect class="bar" x="172" y="86" width="88" height="14" rx="4" />
-	<rect class="bar" x="172" y="104" width="88" height="14" rx="4" />
+	<rect class="bar" x="14" y="117" width="96" height="13" rx="4" />
+	<rect class="bar" x="14" y="134" width="96" height="13" rx="4" />
+	<rect class="bar" x="14" y="151" width="96" height="13" rx="4" />
 	{
 		kafka && (
-			<g transform="translate(206 129) scale(0.83)">
+			<g transform="translate(52 174) scale(0.8)">
 				<path class="mark" d={kafka.path} />
 				<title>{kafka.title}</title>
 			</g>
 		)
 	}
-	<text class="step" x="216" y="60">topic</text>
 
-	{/* Fan-out to consumers */}
-	<path class="track" d="M260 86 H300 Q316 86 316 62 V48 H352" />
-	<path class="flow flow-fast" style={flowStyle(130)} d="M260 86 H300 Q316 86 316 62 V48 H352" />
-	<rect class="box" x="356" y="32" width="96" height="32" rx="9" />
-	<text class="step" x="404" y="52">consumer</text>
+	{/* Fan-out over a shared spine: four separate curves from one origin
+	    reads as spaghetti at this size. */}
+	<path class="track" d={`M110 140 H${SPINE_X}`} />
+	<path class="flow flow-fast" style={flowStyle(SPINE_X - 110)} d={`M110 140 H${SPINE_X}`} />
+	<path class="track" d={`M${SPINE_X} ${spineTop} V${spineBottom}`} />
 
-	<path class="track" d="M260 100 H300 Q316 100 316 124 V138 H352" />
-	<path class="flow flow-fast" style={flowStyle(130)} d="M260 100 H300 Q316 100 316 124 V138 H352" />
-	<rect class="box" x="356" y="122" width="96" height="32" rx="9" />
-	<text class="step" x="404" y="142">consumer</text>
-
-	{/* Reply: the part that mattered, routed back to whoever asked. */}
-	<path class="track" d="M404 154 V186 Q404 198 388 198 H67 Q51 198 51 186 V110" />
-	<path
-		class="flow flow-slow"
-		style={flowStyle(470)}
-		d="M404 154 V186 Q404 198 388 198 H67 Q51 198 51 186 V110"
-	/>
-	<text class="step" x="228" y="192">reply to requester</text>
+	{
+		consumers.map((c) => (
+			<>
+				<path class="track" d={`M${SPINE_X} ${c.y} H${CONSUMER_X}`} />
+				<path
+					class="flow flow-fast"
+					style={flowStyle(CONSUMER_X - SPINE_X)}
+					d={`M${SPINE_X} ${c.y} H${CONSUMER_X}`}
+				/>
+				<rect
+					class="box"
+					x={CONSUMER_X}
+					y={c.y - 16}
+					width={CONSUMER_W}
+					height="32"
+					rx="9"
+				/>
+				<text class="step" x={CONSUMER_X + CONSUMER_W / 2} y={c.y + 5}>
+					{c.label}
+				</text>
+			</>
+		))
+	}
 </svg>
