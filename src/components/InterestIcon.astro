@@ -30,8 +30,8 @@ const { name } = Astro.props;
 				<path pathLength="1" d="M3 9h12v5a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9Z" />
 				<path pathLength="1" d="M15 10h2.5a2.5 2.5 0 0 1 0 5H15" />
 				<path pathLength="1" d="M2 21h15" />
-				<path pathLength="1" d="M7 2.5c-.8 1-.8 2 0 3" />
-				<path pathLength="1" d="M11 2.5c-.8 1-.8 2 0 3" />
+				<path class="steam" pathLength="1" d="M7 2.5c-.8 1-.8 2 0 3" />
+				<path class="steam steam-b" pathLength="1" d="M11 2.5c-.8 1-.8 2 0 3" />
 			</>
 		)
 	}
@@ -92,6 +92,53 @@ const { name } = Astro.props;
 		animation-delay: 330ms;
 	}
 
+	/* Steam.
+	 *
+	 * The draw-in owns stroke-dashoffset and this owns transform/opacity,
+	 * so both can run on the same element without fighting. Once the icon
+	 * has drawn, the wisps keep rising.
+	 */
+	.interest-icon .steam {
+		animation: steam 3s ease-in-out infinite;
+	}
+
+	/* Offset so the two wisps drift rather than pulsing in lockstep. */
+	.interest-icon .steam-b {
+		animation-delay: 1.4s;
+	}
+
+	/* When the draw-in is active the steam waits for it to finish, then
+	   loops. Declared as one shorthand because a second rule setting
+	   `animation` would replace the first rather than add to it. */
+	:global(:root.has-reveal) :global(.is-visible) .interest-icon .steam {
+		animation:
+			icon-draw 620ms var(--ease-out) forwards,
+			steam 3s ease-in-out 900ms infinite;
+	}
+
+	:global(:root.has-reveal) :global(.is-visible) .interest-icon .steam-b {
+		animation:
+			icon-draw 620ms var(--ease-out) forwards,
+			steam 3s ease-in-out 2.3s infinite;
+	}
+
+	@keyframes steam {
+		0% {
+			opacity: 0;
+			transform: translateY(1.5px);
+		}
+		30% {
+			opacity: 1;
+		}
+		65% {
+			opacity: 0.55;
+		}
+		100% {
+			opacity: 0;
+			transform: translateY(-2.5px);
+		}
+	}
+
 	@keyframes icon-draw {
 		to {
 			stroke-dashoffset: 0;
@@ -100,6 +147,13 @@ const { name } = Astro.props;
 
 	/* Reduced motion: no dash offset at all, so the icons are just there. */
 	@media (prefers-reduced-motion: reduce) {
+		.interest-icon .steam,
+		:global(:root.has-reveal) :global(.is-visible) .interest-icon .steam {
+			animation: none;
+			opacity: 1;
+			transform: none;
+		}
+
 		:global(:root.has-reveal) .interest-icon > * {
 			stroke-dasharray: none;
 			stroke-dashoffset: 0;
