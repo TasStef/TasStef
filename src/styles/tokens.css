@@ -12,14 +12,18 @@
 	/* ---- Surface ---- */
 	--bg: #06070c; /* near-black, blue-shifted (never pure #000) */
 	--bg-raised: #0b0d14;
-	--surface: rgba(255, 255, 255, 0.025);
+	--surface: rgba(255, 255, 255, 0.03);
 	--surface-hover: rgba(255, 255, 255, 0.045);
 	--border: rgba(255, 255, 255, 0.08);
 	--border-strong: rgba(255, 255, 255, 0.16);
 
 	/* ---- Text ---- */
 	--text: #d6dae1; /* deliberately below --accent so the accent reads */
-	--text-muted: #8d93a8;
+	/* Lifted from #8d93a8. The old value cleared AA on bare --bg but not
+	 * on a hovered card sitting over both orbs, which is now a real place
+	 * on this page. Lifting it fixes that worst case and reads better
+	 * everywhere else too: 6.59:1 -> 7.64:1 on plain background. */
+	--text-muted: #999fb4;
 	--text-faint: #5f657a; /* decorative only, never body copy */
 
 	/* ---- Accent: neutral near-white ----
@@ -94,6 +98,31 @@
 	--radius: 14px;
 	--radius-sm: 8px;
 
+	/* ---- Elevation ----
+	 * Depth on a near-black page comes mostly from a LIT TOP EDGE and a
+	 * sheen down the face, not from a cast shadow: a shadow over #06070c
+	 * has almost nothing left to darken. The shadow's job here is only to
+	 * separate the card from the page, so it is soft, large and offset
+	 * downward rather than tight and dark.
+	 *
+	 * Two shadows per level, not one: a short contact shadow that anchors
+	 * the edge, and a long diffuse one that reads as height. A single
+	 * shadow at either size looks like a sticker or like fog.
+	 *
+	 * --sheen-top is kept as its own token, rather than written inline into
+	 * the gradient, so check:contrast can composite it. It is the topmost
+	 * and therefore brightest point of a card, which is the worst case for
+	 * text sitting on one.
+	 */
+	--sheen-top: rgba(255, 255, 255, 0.025);
+	--sheen: linear-gradient(180deg, var(--sheen-top), transparent 45%);
+	--shadow-1:
+		0 1px 1px rgba(0, 0, 0, 0.5), 0 8px 20px -10px rgba(0, 0, 0, 0.65);
+	--shadow-2:
+		0 2px 4px rgba(0, 0, 0, 0.5), 0 18px 38px -14px rgba(0, 0, 0, 0.75);
+	/* Raised edge for surfaces that carry no .hairline of their own. */
+	--edge: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+
 	/* ---- Motion ---- */
 	--dur-fast: 140ms;
 	--dur-base: 320ms;
@@ -107,8 +136,11 @@
 
 		--bg: #fbfbf9;
 		--bg-raised: #ffffff;
-		--surface: rgba(0, 0, 0, 0.02);
-		--surface-hover: rgba(0, 0, 0, 0.04);
+		/* Light mode inverts elevation too: a raised card must be LIGHTER
+		 * than the page it sits on, so these lift towards white rather than
+		 * darkening. Kept translucent so the orbs still tint them. */
+		--surface: rgba(255, 255, 255, 0.72);
+		--surface-hover: rgba(255, 255, 255, 0.9);
 		--border: rgba(0, 0, 0, 0.1);
 		--border-strong: rgba(0, 0, 0, 0.18);
 
@@ -127,6 +159,15 @@
 		 * never the binding constraint the way muted text is in dark mode. */
 		--glow: rgba(96, 108, 224, 0.14);
 		--glow-2: rgba(150, 100, 224, 0.12);
+		/* Here the shadow does the work the lit edge does in dark mode, so
+		 * it carries more weight. Tinted towards the page's blue-violet
+		 * rather than neutral grey, which reads as dirt on a warm white. */
+		--sheen-top: rgba(255, 255, 255, 0.75);
+		--shadow-1:
+			0 1px 2px rgba(22, 24, 44, 0.06), 0 6px 16px -8px rgba(22, 24, 44, 0.16);
+		--shadow-2:
+			0 2px 6px rgba(22, 24, 44, 0.08), 0 16px 32px -12px rgba(22, 24, 44, 0.22);
+		--edge: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 		--grain-opacity: 0.02;
 	}
 }

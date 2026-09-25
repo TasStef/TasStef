@@ -16,7 +16,7 @@ const flipped = index % 2 === 1;
 ---
 
 <article class:list={['row', 'reveal', { flipped }]} style={`--reveal-delay: ${index * 70}ms`}>
-	<div class="row-figure hairline">
+	<div class="row-figure hairline raised">
 		<ProjectDiagram name={diagram} />
 	</div>
 
@@ -69,7 +69,6 @@ const flipped = index % 2 === 1;
 		/* Tight on narrow screens: every pixel of padding is a pixel the
 		   diagram loses, and it is already scaled down there. */
 		padding: var(--sp-3);
-		background: var(--surface);
 		border-radius: var(--radius);
 	}
 
@@ -113,6 +112,7 @@ const flipped = index % 2 === 1;
 		color: var(--text-muted);
 		border: 1px solid var(--border);
 		border-radius: var(--radius-sm);
+		box-shadow: var(--edge);
 		padding: 2px var(--sp-2);
 	}
 

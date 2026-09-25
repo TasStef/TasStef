@@ -31,7 +31,7 @@ import { profile } from '../data/profile';
 				{
 					profile.interests.map((i, idx) => (
 						<li
-							class="interest hairline reveal"
+							class="interest hairline raised reveal"
 							style={`--reveal-delay: ${180 + idx * 110}ms`}
 						>
 							<div class="interest-head">
@@ -121,10 +121,10 @@ import { profile } from '../data/profile';
 		flex-direction: column;
 		gap: var(--sp-2);
 		padding: var(--sp-4) var(--sp-5, 1.25rem);
-		background: var(--surface);
 		transition:
-			background var(--dur-base) var(--ease-out),
-			transform var(--dur-base) var(--ease-out);
+			background-color var(--dur-base) var(--ease-out),
+			box-shadow var(--dur-base) var(--ease-out),
+			translate var(--dur-base) var(--ease-out);
 	}
 
 	.interest-head {
@@ -134,8 +134,9 @@ import { profile } from '../data/profile';
 	}
 
 	.interest:hover {
-		background: var(--surface-hover);
-		transform: translateY(-2px);
+		background-color: var(--surface-hover);
+		box-shadow: var(--shadow-2);
+		translate: 0 -2px;
 	}
 
 	.interest-name {

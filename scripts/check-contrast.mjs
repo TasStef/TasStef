@@ -73,19 +73,36 @@ for (const [name, v, rgba] of schemes) {
 		if (!ok) failures++;
 		console.log(`   ${ok ? 'ok  ' : 'FAIL'} ${label.padEnd(20)}${r.toFixed(2)}:1`);
 	}
-	// The lit background: both orbs overlapping is where the page is
-	// brightest, and muted text is the first thing to fail on it.
+	// Worst case on the page, built up one layer at a time exactly as the
+	// browser composites them: page background, both orbs overlapping, then
+	// a hovered card fill, then the sheen at the very top of that card.
+	// Muted text is always the first thing to fail on it.
 	if (rgba.glow && rgba['glow-2']) {
-		const lit = toHex(over(rgba['glow-2'], over(rgba.glow, hex(v.bg))));
+		const litRgb = over(rgba['glow-2'], over(rgba.glow, hex(v.bg)));
+		const lit = toHex(litRgb);
 		console.log(`   -- under both orbs, bg becomes ${lit}`);
-		for (const [label, fg] of [
-			['body text on glow', v.text],
-			['muted text on glow', v['text-muted']],
-		]) {
-			const r = ratio(fg, lit);
-			const ok = r >= AA;
-			if (!ok) failures++;
-			console.log(`   ${ok ? 'ok  ' : 'FAIL'} ${label.padEnd(20)}${r.toFixed(2)}:1`);
+
+		const layers = [['on glow', lit]];
+		if (rgba['surface-hover']) {
+			const card = over(rgba['surface-hover'], litRgb);
+			layers.push(['on hovered card', toHex(card)]);
+			if (rgba['sheen-top']) {
+				layers.push(['on card sheen', toHex(over(rgba['sheen-top'], card))]);
+			}
+		}
+
+		for (const [where, bg] of layers) {
+			for (const [who, fg] of [
+				['body text', v.text],
+				['muted text', v['text-muted']],
+			]) {
+				const r = ratio(fg, bg);
+				const ok = r >= AA;
+				if (!ok) failures++;
+				console.log(
+					`   ${ok ? 'ok  ' : 'FAIL'} ${(who + ' ' + where).padEnd(24)}${r.toFixed(2)}:1  over ${bg}`
+				);
+			}
 		}
 	} else {
 		// Counts as a failure on purpose. A check that cannot find its

@@ -156,6 +156,31 @@ ol {
 	pointer-events: none;
 }
 
+/* ---- Elevation ----
+ * Shared depth for card surfaces, so every card on the page sits at one
+ * height instead of each component inventing its own.
+ *
+ * On a near-black page the cast shadow does less work than you would
+ * expect, because there is very little left to darken. Most of the depth
+ * comes from the sheen down the face and, on cards that carry .hairline,
+ * its lit top edge. The shadow only has to separate the card from the page.
+ *
+ * Hover response is deliberately NOT in here. Only some of these surfaces
+ * answer to a pointer, and a card that rises under the cursor but cannot be
+ * clicked is a lie, so each component opts in for itself.
+ *
+ * Those that do opt in lift with `translate`, never `transform`: .reveal
+ * and .enter already own transform on these same elements, and
+ * `:root.has-reveal .reveal.is-visible { transform: none }` outranks a
+ * component's :hover rule. That is why the lift written here before this
+ * comment existed never actually fired.
+ */
+.raised {
+	background-color: var(--surface);
+	background-image: var(--sheen);
+	box-shadow: var(--shadow-1);
+}
+
 /* ---- Scroll reveal ----
  * Content is VISIBLE BY DEFAULT. The hiding rules only apply once JS has
  * added .has-reveal to <html>, which it does synchronously before paint and
@@ -224,5 +249,12 @@ ol {
 	:root.has-reveal .reveal.is-visible {
 		opacity: 1 !important;
 		transform: none !important;
+	}
+
+	/* Hover lifts are small and user-initiated, but they are still motion;
+	   the shadow change alone carries the feedback. */
+	.raised,
+	.raised:hover {
+		translate: none !important;
 	}
 }

@@ -52,7 +52,7 @@ for (const role of roles) {
 				const multi = stint.roles.length > 1;
 
 				return (
-					<li class="stint reveal hairline" style={`--reveal-delay: ${i * 70}ms`}>
+					<li class="stint reveal hairline raised" style={`--reveal-delay: ${i * 70}ms`}>
 						<div class="stint-meta">
 							<p class="label stint-dates">
 								{stint.start} — {stint.end ?? 'Present'}
@@ -142,12 +142,18 @@ for (const role of roles) {
 		grid-template-columns: minmax(10rem, 14rem) 1fr;
 		gap: var(--sp-6);
 		padding: var(--sp-6);
-		background: var(--surface);
-		transition: background var(--dur-base) var(--ease-out);
+		transition:
+			background-color var(--dur-base) var(--ease-out),
+			box-shadow var(--dur-base) var(--ease-out),
+			translate var(--dur-base) var(--ease-out);
 	}
 
+	/* This card is the click target once the collapse script runs, so it is
+	   the one that earns the largest lift. */
 	.stint:hover {
-		background: var(--surface-hover);
+		background-color: var(--surface-hover);
+		box-shadow: var(--shadow-2);
+		translate: 0 -2px;
 	}
 
 	.stint-meta {
