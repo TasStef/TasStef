@@ -1,8 +1,8 @@
 ---
 title: Support automation & knowledge base
 where: Centtrip
-blurb: Automated Jira and Confluence workflows so recurring questions were answered before they reached a person.
-tech: ['Jira', 'Confluence', 'Automation', 'Reporting']
+blurb: Automated Jira and Confluence workflows so recurring questions were answered before they reached support.
+tech: ['Jira', 'Confluence', 'Automation', 'Reporting', 'Dashboards']
 diagram: support-automation
 metrics:
   - value: 25%

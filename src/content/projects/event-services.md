@@ -1,8 +1,8 @@
 ---
-title: Event-driven workflows across services
+title: Event-driven microservice architecture
 where: Tipalti
-blurb: An orchestrator calls out to a service, then publishes one event that four systems react to independently.
-tech: ['C#', '.NET', 'Kafka', 'Elasticsearch', 'Microservices']
+blurb: Feature development across complex event-driven architectures.
+tech: ['TypeScript', 'Kafka', 'Microservices','Elasticsearch', 'MongoDB', 'Postgres', 'Redis']
 diagram: event-services
 order: 3
 ---

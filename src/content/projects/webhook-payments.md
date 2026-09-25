@@ -1,8 +1,8 @@
 ---
 title: Webhook-driven payments
 where: Centtrip
-blurb: Provider events cross into our system and become payment records, with no one keying anything in.
-tech: ['.NET', 'Webhooks', 'Xero API', 'QuickBooks API']
+blurb: Provider events cross into our system and trigger payment records.
+tech: ['.NET', 'Webhooks', 'Xero API', 'QuickBooks API', 'Redis', 'MySQL', 'Distributed Lock']
 diagram: webhook-payments
 order: 2
 ---
