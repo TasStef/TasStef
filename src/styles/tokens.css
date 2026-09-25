@@ -33,9 +33,26 @@
 	--accent: #edeff0;
 	--accent-dim: #c2c7cd;
 	--accent-ink: #06070c; /* text placed ON an accent fill */
-	--glow: rgba(124, 138, 255, 0.2);
-	--glow-2: rgba(168, 120, 246, 0.16);
+	--glow: rgba(124, 138, 255, 0.13);
+	--glow-2: rgba(168, 120, 246, 0.1);
 	--grain-opacity: 0.032;
+
+	/* ---- Ambient light rig ----
+	 * Two soft orbs fixed to the viewport that drift as the page scrolls, so
+	 * the whole site sits in light rather than only the hero.
+	 *
+	 * The alphas above are a CEILING, not a taste choice: they are the most
+	 * light --text-muted can sit on and still clear AA where the two orbs
+	 * overlap. check:contrast enforces it, so raising them fails the build
+	 * script rather than quietly costing legibility.
+	 *
+	 * Orbs are deliberately far larger than the viewport, so only the gentle
+	 * middle of the falloff is ever on screen and the edge never reads as a
+	 * visible rim.
+	 */
+	--orb-size: 92vmax;
+	--orb-travel-x: 22vw;
+	--orb-travel-y: 20vh;
 
 	/* ---- Type ---- */
 	--font-sans:
@@ -105,8 +122,11 @@
 		--accent: #111318;
 		--accent-dim: #2c3038;
 		--accent-ink: #ffffff;
-		--glow: rgba(96, 108, 224, 0.12);
-		--glow-2: rgba(150, 100, 224, 0.1);
+		/* Light mode tints rather than brightens: these sit over a near-white
+		 * background and barely shift its luminance, so dark text on them is
+		 * never the binding constraint the way muted text is in dark mode. */
+		--glow: rgba(96, 108, 224, 0.14);
+		--glow-2: rgba(150, 100, 224, 0.12);
 		--grain-opacity: 0.02;
 	}
 }
