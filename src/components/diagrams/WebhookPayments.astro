@@ -38,7 +38,7 @@ const TRACK_END = 420;
 	{/* Providers, shown rather than named. */}
 	<rect class="box" x="10" y="62" width="50" height="34" rx="9" />
 	<g transform="translate(23 71) scale(0.67)">
-		{xero ? <path class="mark" d={xero.path} /> : <text class="fallback" x="12" y="18">X</text>}
+		{xero ? <path class="mark" data-brand="xero" d={xero.path} /> : <text class="fallback" x="12" y="18">X</text>}
 		{xero && <title>{xero.title}</title>}
 	</g>
 
@@ -46,7 +46,7 @@ const TRACK_END = 420;
 	<g transform="translate(23 119) scale(0.67)">
 		{
 			quickbooks ? (
-				<path class="mark" d={quickbooks.path} />
+				<path class="mark" data-brand="quickbooks" d={quickbooks.path} />
 			) : (
 				<text class="fallback" x="12" y="18">QB</text>
 			)
@@ -77,7 +77,7 @@ const TRACK_END = 420;
 	{
 		rabbitmq && (
 			<g transform="translate(300 95) scale(0.67)">
-				<path class="mark" d={rabbitmq.path} />
+				<path class="mark" data-brand="rabbitmq" d={rabbitmq.path} />
 				<title>{rabbitmq.title}</title>
 			</g>
 		)

@@ -119,7 +119,7 @@ const spineBottom = consumers[consumers.length - 1].y;
 			<g>
 				<circle class="badge" cx={topicMidX} cy={topicMidY} r="15" />
 				<g transform={`translate(${topicMidX - 8.4} ${topicMidY - 8.4}) scale(0.7)`}>
-					<path class="mark mark-bright" d={kafka.path} />
+					<path class="mark" data-brand="apachekafka" d={kafka.path} />
 					<title>{kafka.title}</title>
 				</g>
 			</g>
@@ -168,7 +168,4 @@ const spineBottom = consumers[consumers.length - 1].y;
 		stroke-width: 1;
 	}
 
-	.mark-bright {
-		fill: var(--text);
-	}
 </style>

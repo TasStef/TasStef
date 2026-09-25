@@ -88,9 +88,19 @@
 	stroke-width: 1;
 }
 
+/* Marks default to the monochrome diagram vocabulary; a data-brand opts one
+ * into its product colour. Keeping the default means a new mark renders
+ * correctly before anyone picks a colour for it. */
 .diagram .mark {
 	fill: var(--text-muted);
 }
+
+.diagram .mark[data-brand='xero'] { fill: var(--mark-xero); }
+.diagram .mark[data-brand='quickbooks'] { fill: var(--mark-quickbooks); }
+.diagram .mark[data-brand='apachekafka'] { fill: var(--mark-apachekafka); }
+.diagram .mark[data-brand='rabbitmq'] { fill: var(--mark-rabbitmq); }
+.diagram .mark[data-brand='jira'] { fill: var(--mark-jira); }
+.diagram .mark[data-brand='confluence'] { fill: var(--mark-confluence); }
 
 /* ---------- Type ----------
  * Sized in viewBox units, so it shrinks with the drawing. At 375px these

@@ -7,6 +7,8 @@
  * and where the two orbs overlap they are at their brightest. That overlap
  * is the real worst case and it is what caps --glow / --glow-2.
  *
+ * Product marks are checked too, at the 3:1 graphical-object bar.
+ *
  * Run with `npm run check:contrast`. This exists because the accent is
  * defined twice, once per scheme, and it is easy to change one and forget
  * the other. Eyeballing does not catch that; this does.
@@ -55,6 +57,8 @@ const schemes = [
 ];
 
 const AA = 4.5;
+// WCAG 1.4.11: non-text graphical objects need 3:1, not 4.5:1.
+const AAG = 3;
 let failures = 0;
 
 for (const [name, v, rgba] of schemes) {
@@ -103,6 +107,32 @@ for (const [name, v, rgba] of schemes) {
 					`   ${ok ? 'ok  ' : 'FAIL'} ${(who + ' ' + where).padEnd(24)}${r.toFixed(2)}:1  over ${bg}`
 				);
 			}
+		}
+
+		// Product marks are graphical objects, so the bar is 3:1 rather than
+		// 4.5:1. Each is checked against the DIMMEST and BRIGHTEST card it
+		// can sit on, because a colour tuned for one can fail the other: the
+		// dark brands wash out on a lit card and the bright ones on a plain.
+		const cardRange = [
+			toHex(over(rgba.surface ?? { rgb: [0, 0, 0], a: 0 }, hex(v.bg))),
+			layers.at(-1)[1],
+		];
+		const marks = Object.keys(v)
+			.filter((k) => k.startsWith('mark-'))
+			.sort();
+
+		if (!marks.length) {
+			failures++;
+			console.log('   FAIL no --mark-* tokens found');
+		}
+		for (const k of marks) {
+			const rs = cardRange.map((bg) => ratio(v[k], bg));
+			const r = Math.min(...rs);
+			const ok = r >= AAG;
+			if (!ok) failures++;
+			console.log(
+				`   ${ok ? 'ok  ' : 'FAIL'} ${('--' + k).padEnd(24)}${r.toFixed(2)}:1  ${v[k]}`
+			);
 		}
 	} else {
 		// Counts as a failure on purpose. A check that cannot find its

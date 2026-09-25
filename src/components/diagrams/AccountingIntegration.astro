@@ -138,7 +138,7 @@ const MARK_W = 24 * MARK_SCALE;
 						/>
 						<g transform={`translate(${n.x - MARK_W - 2} 202) scale(${MARK_SCALE})`}>
 							{xero ? (
-								<path class="mark" d={xero.path} />
+								<path class="mark" data-brand="xero" d={xero.path} />
 							) : (
 								<text class="fallback" x="12" y="18">X</text>
 							)}
@@ -146,7 +146,7 @@ const MARK_W = 24 * MARK_SCALE;
 						</g>
 						<g transform={`translate(${n.x + 2} 202) scale(${MARK_SCALE})`}>
 							{quickbooks ? (
-								<path class="mark" d={quickbooks.path} />
+								<path class="mark" data-brand="quickbooks" d={quickbooks.path} />
 							) : (
 								<text class="fallback" x="12" y="18">QB</text>
 							)}

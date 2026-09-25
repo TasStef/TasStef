@@ -45,7 +45,7 @@ const Q_W = 104;
 	{
 		confluence && (
 			<g transform={`translate(${KB_X + 12} 111) scale(0.75)`}>
-				<path class="mark" d={confluence.path} />
+				<path class="mark" data-brand="confluence" d={confluence.path} />
 				<title>{confluence.title}</title>
 			</g>
 		)
@@ -71,7 +71,7 @@ const Q_W = 104;
 	{
 		jira && (
 			<g transform={`translate(${Q_X + 12} 111) scale(0.75)`}>
-				<path class="mark" d={jira.path} />
+				<path class="mark" data-brand="jira" d={jira.path} />
 				<title>{jira.title}</title>
 			</g>
 		)

@@ -123,6 +123,34 @@
 	/* Raised edge for surfaces that carry no .hairline of their own. */
 	--edge: inset 0 1px 0 rgba(255, 255, 255, 0.07);
 
+	/* ---- Product marks ----
+	 * Brand colours for the diagram marks. Each is defined TWICE, once per
+	 * scheme, for the same reason --accent is: no single brand hex is
+	 * legible on both a near-black and a near-white card.
+	 *
+	 * Measured on the card background, from plain to hovered-over-both-orbs.
+	 * Graphical objects need 3:1 (WCAG 1.4.11), not the 4.5:1 text needs;
+	 * check:contrast enforces every --mark-* token at that bar.
+	 *
+	 * Where the brand hex already clears it, it is used untouched. Where it
+	 * does not, only lightness moves, so the hue stays the brand's own.
+	 */
+	--mark-xero: #13b5ea; /* brand */
+	--mark-quickbooks: #2ca01c; /* brand */
+	--mark-rabbitmq: #ff6600; /* brand */
+	/* Kafka's brand mark is near-black (#231f20) and scores 1.18:1 here.
+	 * White is Kafka's own treatment on dark, so this is the faithful
+	 * choice rather than a compromise. Held below --accent so the mark does
+	 * not outshine the brightest thing on the page. */
+	--mark-apachekafka: #d8d4d6;
+	/* Both Atlassian blues lighten into near-identical tones: #0052cc and
+	 * #172b4d land 1.02:1 apart, and they share a diagram. Confluence is
+	 * pushed lighter to 1.95:1 so the two marks read as two products. */
+	--mark-jira: #3385ff;
+	--mark-confluence: #9cc4f0;
+	/* Not a brand: the feature-flag pennant. */
+	--mark-flag: #ff5d63;
+
 	/* ---- Motion ---- */
 	--dur-fast: 140ms;
 	--dur-base: 320ms;
@@ -168,6 +196,16 @@
 		--shadow-2:
 			0 2px 6px rgba(22, 24, 44, 0.08), 0 16px 32px -12px rgba(22, 24, 44, 0.22);
 		--edge: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+		/* Here the near-black brands are the legible ones and the bright
+		 * brands are not, so this block is close to the inverse of above. */
+		--mark-xero: #0f91bb;
+		--mark-quickbooks: #2a971a;
+		--mark-rabbitmq: #e05a00;
+		--mark-apachekafka: #231f20; /* brand */
+		--mark-jira: #0052cc; /* brand */
+		--mark-confluence: #172b4d; /* brand */
+		--mark-flag: #c9343a;
+
 		--grain-opacity: 0.02;
 	}
 }
