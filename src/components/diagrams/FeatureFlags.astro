@@ -36,7 +36,7 @@ import { flowStyle } from '../../lib/diagram';
 	    belonging to anyone. */}
 	<g class="flag-glyph">
 		<path d="M205 90 V112" />
-		<path d="M205 91 H219 L216 95.5 L219 100 H205" />
+		<path class="cloth" d="M205 91 H219 L216 95.5 L219 100 H205" />
 	</g>
 
 	<!-- <text class="step" x="212" y="56">flag</text> -->
@@ -56,9 +56,16 @@ import { flowStyle } from '../../lib/diagram';
 </svg>
 
 <style>
+	/* The pole keeps the diagram's own accent; only the cloth carries
+	   colour, so the glyph still belongs to the monochrome vocabulary
+	   around it rather than reading as one more product mark. */
 	.flag-glyph {
-		stroke: var(--mark-flag);
+		stroke: var(--accent);
 		stroke-width: 1.6;
 		fill: none;
+	}
+
+	.flag-glyph .cloth {
+		stroke: var(--mark-flag);
 	}
 </style>
