@@ -2,7 +2,7 @@
 title: Event-driven microservice architecture
 where: Tipalti
 blurb: Feature development across complex event-driven architectures.
-tech: ['TypeScript', 'Kafka', 'Microservices','Elasticsearch', 'MongoDB', 'Postgres', 'Redis']
+tech: ['TypeScript', 'GraphQL', 'Kafka', 'Microservices','Elasticsearch', 'MongoDB', 'Postgres', 'Redis']
 diagram: event-services
 order: 3
 ---

@@ -2,7 +2,7 @@
 title: Self-serve accounting integration
 where: Centtrip
 blurb: Onboarding used to take three separate engineer touchpoints per client. Now clients connect their own books and go live in minutes.
-tech: ['.NET', 'Angular', 'Xero API', 'QuickBooks API', 'OAuth' , 'REST API' ]
+tech: ['.NET', 'Angular', 'Xero API', 'QuickBooks API', 'OAuth' , 'Rest Api' ]
 diagram: accounting-integration
 metrics:
   - value: 90%
