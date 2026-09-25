@@ -16,7 +16,7 @@ const flipped = index % 2 === 1;
 ---
 
 <article class:list={['row', 'reveal', { flipped }]} style={`--reveal-delay: ${index * 70}ms`}>
-	<div class="row-figure hairline raised">
+	<div class="row-figure hairline raised tilt">
 		<ProjectDiagram name={diagram} />
 	</div>
 
@@ -70,6 +70,38 @@ const flipped = index % 2 === 1;
 		   diagram loses, and it is already scaled down there. */
 		padding: var(--sp-3);
 		border-radius: var(--radius);
+	}
+
+	/* ---- Hover tilt ----
+	   Gated on the root class motion.ts adds, so without JS the figure never
+	   gets a transform at all: no stacking context, nothing to go wrong.
+	   The script only adds the class on a device that actually hovers.
+
+	   This figure is not clickable, and everywhere else on the page a hover
+	   response means "you can click this". A tilt reads as depth rather than
+	   as an affordance, which is why it is the one hover this surface gets. */
+	:global(:root.has-tilt) .row-figure {
+		transform: perspective(var(--tilt-perspective))
+			rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+		/* Deliberately NO transform transition while tracking. The angles are
+		   rewritten every frame, so a transition restarts on every write and
+		   never arrives: measured at under 1% of the target angle, which
+		   rendered as a card that simply would not tilt. Following the
+		   pointer is already smooth because the pointer is. */
+		transition: box-shadow var(--dur-base) var(--ease-out);
+	}
+
+	:global(:root.has-tilt) .row-figure:hover {
+		box-shadow: var(--shadow-2);
+	}
+
+	/* The one moment a transform transition is right: the pointer has left
+	   and the angles change once, so nothing restarts it. The class is added
+	   for the length of the return and then taken off again. */
+	:global(:root.has-tilt) .row-figure.is-returning {
+		transition:
+			transform 420ms var(--ease-out),
+			box-shadow var(--dur-base) var(--ease-out);
 	}
 
 	@media (min-width: 45rem) {

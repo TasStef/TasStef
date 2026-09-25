@@ -335,6 +335,95 @@ export function initAmbient() {
 	write();
 }
 
+/* ------------------------------------------------------------------ */
+/* Hover tilt                                                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Tilts a card towards the pointer, so it reads as a panel lying in space
+ * rather than a flat rectangle.
+ *
+ * Purely decorative, so it is gated hard: skipped under reduced motion, and
+ * skipped entirely unless the device has a pointer that genuinely hovers.
+ * On touch there is no pointerleave to trust, and a card left stuck at an
+ * angle after a tap looks broken rather than deliberate.
+ *
+ * The root class is added only from here, so with this file absent the
+ * figures carry no transform at all.
+ */
+export function initTilt() {
+	const cards = document.querySelectorAll<HTMLElement>('.tilt');
+	if (!cards.length || reduced()) return;
+	if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+	// Kept in step with the return transition in ProjectRow.astro.
+	const RETURN_MS = 420;
+
+	const max =
+		parseFloat(
+			getComputedStyle(document.documentElement).getPropertyValue('--tilt-max')
+		) || 5;
+
+	document.documentElement.classList.add('has-tilt');
+
+	for (const card of cards) {
+		let frame = 0;
+		let returning = 0;
+
+		const onMove = (e: PointerEvent) => {
+			// Any return still in flight is abandoned the moment the pointer
+			// is back, so tracking is immediate rather than easing first.
+			if (returning) {
+				window.clearTimeout(returning);
+				returning = 0;
+				card.classList.remove('is-returning');
+			}
+			// Coalesced to one write per frame; pointermove fires far more
+			// often than the screen refreshes.
+			if (frame) return;
+			frame = requestAnimationFrame(() => {
+				frame = 0;
+				const r = card.getBoundingClientRect();
+				if (!r.width || !r.height) return;
+
+				// -1 at one edge, +1 at the other, so --tilt-max is the
+				// rotation reached at the edge rather than half of it.
+				const dx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+				const dy = ((e.clientY - r.top) / r.height - 0.5) * 2;
+
+				// Inverted signs: the edge nearest the pointer moves away from
+				// the viewer, producing a "push" effect rather than a pull.
+				card.style.setProperty('--tilt-x', `${(-dy * max).toFixed(2)}deg`);
+				card.style.setProperty('--tilt-y', `${(dx * max).toFixed(2)}deg`);
+			});
+		};
+
+		const reset = () => {
+			if (frame) {
+				cancelAnimationFrame(frame);
+				frame = 0;
+			}
+			// Ease back rather than snap. Safe to transition here because the
+			// angles change exactly once, unlike while tracking.
+			card.classList.add('is-returning');
+			// Removing rather than zeroing lets the CSS default take over,
+			// so the resting state is defined in one place.
+			card.style.removeProperty('--tilt-x');
+			card.style.removeProperty('--tilt-y');
+
+			window.clearTimeout(returning);
+			returning = window.setTimeout(() => {
+				returning = 0;
+				card.classList.remove('is-returning');
+			}, RETURN_MS + 40);
+		};
+
+		card.addEventListener('pointermove', onMove);
+		card.addEventListener('pointerleave', reset);
+		card.addEventListener('pointercancel', reset);
+	}
+}
+
 export function initMotion() {
 	initReveal();
 	initScramble();
@@ -342,4 +431,5 @@ export function initMotion() {
 	initCollapsibles();
 	initDiagrams();
 	initAmbient();
+	initTilt();
 }

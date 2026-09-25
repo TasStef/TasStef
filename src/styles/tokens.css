@@ -11,7 +11,7 @@
 
 	/* ---- Surface ---- */
 	--bg: #06070c; /* near-black, blue-shifted (never pure #000) */
-	--bg-raised: #0b0d14;
+	--bg-raised: #15161f;
 	--surface: rgba(255, 255, 255, 0.03);
 	--surface-hover: rgba(255, 255, 255, 0.045);
 	--border: rgba(255, 255, 255, 0.08);
@@ -115,11 +115,11 @@
 	 * text sitting on one.
 	 */
 	--sheen-top: rgba(255, 255, 255, 0.025);
-	--sheen: linear-gradient(180deg, var(--sheen-top), transparent 45%);
+	--sheen: linear-gradient(180deg, var(--sheen-top), transparent 1100%);
 	--shadow-1:
 		0 1px 1px rgba(0, 0, 0, 0.5), 0 8px 20px -10px rgba(0, 0, 0, 0.65);
 	--shadow-2:
-		0 2px 4px rgba(0, 0, 0, 0.5), 0 18px 38px -14px rgba(0, 0, 0, 0.75);
+		0 2px 4px rgba(0, 0, 0, 0.5), 0 18px 38px -14px rgba(73, 79, 105, 0.75);
 	/* Raised edge for surfaces that carry no .hairline of their own. */
 	--edge: inset 0 1px 0 rgba(255, 255, 255, 0.07);
 
@@ -150,6 +150,17 @@
 	--mark-confluence: #9cc4f0;
 	/* Not a brand: the feature-flag pennant. */
 	--mark-flag: #ff5d63;
+
+	/* ---- Hover tilt ----
+	 * Degrees of rotation at the very corner of a project figure. Small on
+	 * purpose: past about 8 the diagram inside starts to read as skewed
+	 * rather than as a card lying in space.
+	 *
+	 * Unitless, because motion.ts reads it and appends deg itself. A longer
+	 * perspective flattens the effect; a shorter one exaggerates it.
+	 */
+	--tilt-max: 5;
+	--tilt-perspective: 900px;
 
 	/* ---- Motion ---- */
 	--dur-fast: 140ms;
