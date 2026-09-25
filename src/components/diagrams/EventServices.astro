@@ -61,12 +61,12 @@ const spineBottom = consumers[consumers.length - 1].y;
 	class="diagram"
 	viewBox="0 0 460 260"
 	role="img"
-	aria-label="A send back action calling a service from the orchestrator, then fanning out over Kafka to reindexing, audit, aggregation and email"
+	aria-label="An orchestrator calling a service, then publishing one event that reindexing, audit, aggregation and email each react to"
 	fill="none"
 	stroke-linecap="round"
 	stroke-linejoin="round"
 >
-	<text class="lane-label" x="0" y="14">SEND BACK</text>
+	<text class="lane-label" x="0" y="14">WORKFLOW</text>
 
 	{/* Round trip: the orchestrator asks, the service answers. */}
 	<rect
