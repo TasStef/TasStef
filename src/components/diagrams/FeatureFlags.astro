@@ -31,6 +31,14 @@ import { flowStyle } from '../../lib/diagram';
 
 	{/* Diamond: the conventional shape for a branch. */}
 	<path class="diamond" d="M212 66 L246 100 L212 134 L178 100 Z" />
+
+	{/* Drawn rather than sourced: a flag is a generic shape, not a mark
+	    belonging to anyone. */}
+	<g class="flag-glyph">
+		<path d="M205 90 V112" />
+		<path d="M205 91 H219 L216 95.5 L219 100 H205" />
+	</g>
+
 	<text class="step" x="212" y="56">flag</text>
 	<text class="fallback" x="212" y="156">Unleash</text>
 
@@ -46,3 +54,11 @@ import { flowStyle } from '../../lib/diagram';
 	<rect class="box" x="348" y="130" width="104" height="32" rx="9" />
 	<text class="step" x="400" y="150">existing</text>
 </svg>
+
+<style>
+	.flag-glyph {
+		stroke: var(--accent);
+		stroke-width: 1.6;
+		fill: none;
+	}
+</style>

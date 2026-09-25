@@ -7,9 +7,14 @@ import { flowStyle } from '../../lib/diagram';
  *
  * The point is the boundary: events originate outside the system and cross
  * into it, where they become payment records without anyone keying them in.
+ *
+ * Inside, the work is queued rather than done in the webhook handler. That
+ * is the correct shape for inbound webhooks: acknowledge fast, process
+ * asynchronously, so a slow downstream step cannot make the provider retry.
  */
 const xero = brandMark('xero');
 const quickbooks = brandMark('quickbooks');
+const rabbitmq = brandMark('rabbitmq');
 
 const BOUNDARY = 168;
 const TRACK_START = 116;
@@ -63,8 +68,21 @@ const TRACK_END = 420;
 	<circle class="node-dot" cx={TRACK_START} cy="103" r="4.5" />
 	<text class="step" x={TRACK_START} y="132">webhook</text>
 
-	<rect class="box box-accent" x="226" y="87" width="94" height="32" rx="9" />
-	<text class="step" x="273" y="107">validate</text>
+	<rect class="box box-accent" x="186" y="87" width="84" height="32" rx="9" />
+	<text class="step" x="228" y="107">validate</text>
+
+	{/* Queued, not handled inline. Mark sits left of the label; centred over
+	    it, the two render on top of each other. */}
+	<rect class="box" x="292" y="87" width="84" height="32" rx="9" />
+	{
+		rabbitmq && (
+			<g transform="translate(300 95) scale(0.67)">
+				<path class="mark" d={rabbitmq.path} />
+				<title>{rabbitmq.title}</title>
+			</g>
+		)
+	}
+	<text class="step start" x="322" y="107">queue</text>
 
 	<circle class="live-halo" cx={TRACK_END} cy="103" r="11" />
 	<circle class="node-dot live" cx={TRACK_END} cy="103" r="6" />
