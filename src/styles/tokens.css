@@ -114,7 +114,7 @@
 	 * and therefore brightest point of a card, which is the worst case for
 	 * text sitting on one.
 	 */
-	--sheen-top: rgba(255, 255, 255, 0.025);
+	--sheen-top: rgba(167, 222, 247, 0.048);
 	--sheen: linear-gradient(180deg, var(--sheen-top), transparent 1100%);
 	--shadow-1:
 		0 1px 1px rgba(0, 0, 0, 0.5), 0 8px 20px -10px rgba(0, 0, 0, 0.65);
@@ -159,13 +159,13 @@
 	 * Unitless, because motion.ts reads it and appends deg itself. A longer
 	 * perspective flattens the effect; a shorter one exaggerates it.
 	 */
-	--tilt-max: 5;
+	--tilt-max: 3;
 	--tilt-perspective: 900px;
 
 	/* ---- Motion ---- */
-	--dur-fast: 140ms;
-	--dur-base: 320ms;
-	--dur-slow: 700ms;
+	--dur-fast: 840ms;
+	--dur-base: 1320ms;
+	--dur-slow: 1700ms;
 	--ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
