@@ -2,11 +2,13 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// User site: the repo is named TasStef.github.io, so the site is served from
-// the domain root and BASE stays '/'. A project repo would instead need
-// BASE = '/portfolio' and nothing else changed.
+// Project site: the repo is TasStef/TasStef, which is NOT named
+// tasstef.github.io, so Pages serves it from a subpath rather than the
+// domain root. SITE is the bare origin -- Astro.site never includes the
+// base -- and every absolute URL has to be built from BASE_URL as well,
+// or it silently points at the domain root and 404s.
 const SITE = 'https://tasstef.github.io';
-const BASE = '/';
+const BASE = '/TasStef/';
 
 // https://astro.build/config
 export default defineConfig({
