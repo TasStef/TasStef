@@ -367,10 +367,27 @@ export function initField() {
 	resize();
 	window.addEventListener('resize', resize, { passive: true });
 
+	/**
+	 * Scroll position, cached.
+	 *
+	 * Reading window.scrollY (or innerHeight) forces the browser to flush
+	 * pending layout. Doing that inside the frame loop makes every frame a
+	 * forced reflow, which is what a Lighthouse trace of this page reported.
+	 * A passive listener costs nothing and the value only changes on scroll.
+	 */
+	let scrollY = window.scrollY;
+	const readScroll = () => {
+		scrollY = window.scrollY;
+	};
+	window.addEventListener('scroll', readScroll, { passive: true });
+
 	/** Exposure eases from the hero setting to the body one across the fold. */
 	function exposure() {
-		const span = window.innerHeight * 0.8;
-		const p = Math.max(0, Math.min(1, window.scrollY / span));
+		// Both of these are cached: h from resize(), scrollY from the scroll
+		// listener. Reading either from window here would flush layout on
+		// every frame.
+		const span = h * 0.8;
+		const p = Math.max(0, Math.min(1, scrollY / span));
 		const e = p * p * (3 - 2 * p); // smoothstep, so there is no visible seam
 		const lo = FIELD.exposure * FIELD.bodyExposure;
 		return {
