@@ -33,30 +33,30 @@ export const FIELD = {
 	seed: 7,
 
 	/** How many lights. Costs roughly linearly; changing it rebuilds. */
-	count: 190,
+	count: 9000,
 
 	/* ---- Depth ----
 	 * The camera sits at the origin looking down +z, so bigger numbers are
 	 * further away. near has to stay genuinely far from the lens: projected
 	 * scale is lens/z, so a light allowed to drift close fills the screen. */
-	near: 700,
-	far: 2700,
+	near: 500,
+	far: 1700,
 	/** The depth that renders sharp. Lights either side of it defocus. */
 	focus: 1400,
 	/** Focal length. Higher flattens the perspective, lower exaggerates it. */
-	lens: 900,
+	lens: 6900,
 
 	/* ---- Blur ----
 	 * bokeh is how far a fully defocused light spreads; falloff is how much
 	 * distance from the focal plane it takes to get there. Raise bokeh for
 	 * big soft discs, raise falloff to keep more of the field sharp. */
-	bokeh: 52,
-	falloff: 1150,
+	bokeh: 100,
+	falloff: 5150,
 
 	/* ---- Motion ----
 	 * One multiplier over every drift rate, so speed can be judged as a
 	 * single quality rather than four unrelated numbers. */
-	speed: 1,
+	speed: 0.5,
 
 	/* ---- Light ----
 	 * exposure is the headline brightness, and the setting most likely to
@@ -73,13 +73,13 @@ export const FIELD = {
 	/** Exposure past the fold, as a fraction of the above. */
 	bodyExposure: 0.34,
 	/** Edge visibility. Push this up and it starts to read as particles.js. */
-	edges: 0.17,
+	edges: 0.9,
 	/** Max 3D distance at which two lights get wired together. Rebuilds. */
-	linkDist: 560,
+	linkDist: 300,
 	/** Chance per frame of starting a new pulse, at hero exposure. */
-	pulseRate: 0.022,
+	pulseRate: 0.05,
 	/** How much the lower viewport is darkened, to protect small text. */
-	scrim: 0.72,
+	scrim: 2,
 
 	/* ---- The near-white lights ----
 	 * A handful of neutral lights keep the field from reading as monochrome
@@ -229,6 +229,15 @@ function makeRng(seed: number) {
 
 let regenerate: (() => void) | null = null;
 
+/** Dev-only workload counters, so tuning decisions can be made on numbers. */
+export const fieldStats = {
+	nodes: 0,
+	nodesDrawn: 0,
+	edges: 0,
+	edgesDrawn: 0,
+	buildMs: 0,
+};
+
 /** Rebuilds the point cloud, for settings that change the cloud itself. */
 export function rebuildField() {
 	regenerate?.();
@@ -241,7 +250,7 @@ if (import.meta.env.DEV) {
 	//   FIELD.seed = 12; rebuildField()   // for anything in REBUILD_KEYS
 	//
 	// Settle on numbers here, then write them into FIELD above so they ship.
-	Object.assign(window, { FIELD, rebuildField, REBUILD_KEYS });
+	Object.assign(window, { FIELD, rebuildField, REBUILD_KEYS, fieldStats });
 }
 
 export function initField() {
@@ -267,7 +276,14 @@ export function initField() {
 	let sy = new Float32Array(0);
 	let sz = new Float32Array(0);
 	let sa = new Float32Array(0);
-	let order: number[] = [];
+	/**
+	 * Indices of the lights actually on screen this frame, refilled in place.
+	 * Only these get sorted and drawn: at a long focal length the cloud is
+	 * magnified far wider than the viewport, so the overwhelming majority of
+	 * lights project off screen and used to be sorted and blitted anyway.
+	 */
+	let visible = new Int32Array(0);
+	let visibleCount = 0;
 	const pulses: Pulse[] = [];
 
 	const build = () => {
@@ -311,11 +327,18 @@ export function initField() {
 		sy = new Float32Array(nodes.length);
 		sz = new Float32Array(nodes.length);
 		sa = new Float32Array(nodes.length);
-		order = Array.from(nodes.keys());
+		visible = new Int32Array(nodes.length);
 		pulses.length = 0;
+		fieldStats.nodes = nodes.length;
+		fieldStats.edges = edges.length;
 	};
-	build();
-	regenerate = build;
+	const timedBuild = () => {
+		const t0 = performance.now();
+		build();
+		fieldStats.buildMs = +(performance.now() - t0).toFixed(1);
+	};
+	timedBuild();
+	regenerate = timedBuild;
 
 	let w = 0;
 	let h = 0;
@@ -366,6 +389,7 @@ export function initField() {
 		const cx = w / 2;
 		const cy = h / 2;
 
+		visibleCount = 0;
 		for (let i = 0; i < nodes.length; i++) {
 			const n = nodes[i];
 			// Idle breathing, small enough that fixed topology still reads.
@@ -382,9 +406,25 @@ export function initField() {
 				continue;
 			}
 			const k = FIELD.lens / rz;
-			sx[i] = cx + rx * k;
-			sy[i] = cy + ry * k;
+			const px = cx + rx * k;
+			const py = cy + ry * k;
+			sx[i] = px;
+			sy[i] = py;
 			sa[i] = Math.max(0, Math.min(1, (FIELD.far - rz) / 900)) * n.b;
+
+			// Frustum cull. The sprite's own radius has to be allowed for, or
+			// big defocused discs would pop at the edges of the viewport.
+			const defocus = Math.min(1, Math.abs(rz - FIELD.focus) / FIELD.falloff);
+			const radius = Math.min(140, (7 + defocus * FIELD.bokeh) * k) * 0.5;
+			if (
+				sa[i] > 0.004 &&
+				px + radius >= 0 &&
+				px - radius <= w &&
+				py + radius >= 0 &&
+				py - radius <= h
+			) {
+				visible[visibleCount++] = i;
+			}
 		}
 
 		ctx.globalCompositeOperation = 'lighter';
@@ -393,11 +433,23 @@ export function initField() {
 		// lines reads as a particles.js demo; leading with defocused light and
 		// keeping the lines as hints is what separates the two.
 		ctx.lineWidth = 1;
+		let drawnEdges = 0;
 		for (let e = 0; e < edges.length; e++) {
 			const { a, b, w: ew } = edges[e];
 			const aa = sa[a];
 			const ab = sa[b];
 			if (aa <= 0 || ab <= 0) continue;
+			// Cheap segment-vs-viewport rejection. Both ends can be off screen
+			// while the line still crosses it, so this tests the segment's
+			// bounding box rather than the endpoints individually.
+			if (
+				(sx[a] < 0 && sx[b] < 0) ||
+				(sx[a] > w && sx[b] > w) ||
+				(sy[a] < 0 && sy[b] < 0) ||
+				(sy[a] > h && sy[b] > h)
+			) {
+				continue;
+			}
 			const depth = (sz[a] + sz[b]) / 2;
 			const fade = Math.max(0, 1 - Math.abs(depth - FIELD.focus) / 1500);
 			const alpha = ew * fade * Math.min(aa, ab) * exp.edge;
@@ -407,13 +459,19 @@ export function initField() {
 			ctx.moveTo(sx[a], sy[a]);
 			ctx.lineTo(sx[b], sy[b]);
 			ctx.stroke();
+			drawnEdges++;
 		}
+		fieldStats.edgesDrawn = drawnEdges;
 
-		// Lights, far to near, so nearer bokeh sits on top.
-		order.sort((p, q) => sz[q] - sz[p]);
-		for (const i of order) {
+		// Lights, far to near, so nearer bokeh sits on top. Sorting the
+		// visible subset rather than the whole cloud: this used to sort every
+		// node every frame, which at 9000 nodes is ~120k comparisons a frame
+		// to order things that are not on screen.
+		const draws = visible.subarray(0, visibleCount);
+		draws.sort((p, q) => sz[q] - sz[p]);
+		fieldStats.nodesDrawn = visibleCount;
+		for (const i of draws) {
 			const alpha = sa[i];
-			if (alpha <= 0.004) continue;
 			const rz = sz[i];
 			// Defocus grows either side of the focal plane, and an out-of-focus
 			// light gets BIGGER and dimmer, not just smaller.
