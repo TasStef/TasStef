@@ -10,9 +10,101 @@
  * It also rhymes with the six system diagrams further down the page: nodes,
  * edges, and pulses travelling between them.
  *
- * Exposure eases from the hero setting to a much lower one past the fold,
- * because a hero can carry light that a paragraph cannot.
+ * EVERY tunable lives in FIELD below. In dev a slider panel is attached (see
+ * fieldTuner.ts) that edits these live and hands back a block to paste here,
+ * so the look is dialled in by eye and then committed as numbers.
  */
+
+/* ------------------------------------------------------------------ */
+/* Tunables                                                            */
+/* ------------------------------------------------------------------ */
+
+export const FIELD = {
+	/**
+	 * The arrangement of lights is generated from this seed, not from
+	 * Math.random(), so every visitor sees the same field and what you tune
+	 * is what ships. Change it to deal a different arrangement; the layout
+	 * is worth shopping around for, since one draw can put a bright light
+	 * somewhere awkward.
+	 *
+	 * This is also what makes the contrast guarantee meaningful: with a
+	 * random field, a passing measurement only described that one page load.
+	 */
+	seed: 7,
+
+	/** How many lights. Costs roughly linearly; changing it rebuilds. */
+	count: 190,
+
+	/* ---- Depth ----
+	 * The camera sits at the origin looking down +z, so bigger numbers are
+	 * further away. near has to stay genuinely far from the lens: projected
+	 * scale is lens/z, so a light allowed to drift close fills the screen. */
+	near: 700,
+	far: 2700,
+	/** The depth that renders sharp. Lights either side of it defocus. */
+	focus: 1400,
+	/** Focal length. Higher flattens the perspective, lower exaggerates it. */
+	lens: 900,
+
+	/* ---- Blur ----
+	 * bokeh is how far a fully defocused light spreads; falloff is how much
+	 * distance from the focal plane it takes to get there. Raise bokeh for
+	 * big soft discs, raise falloff to keep more of the field sharp. */
+	bokeh: 52,
+	falloff: 1150,
+
+	/* ---- Motion ----
+	 * One multiplier over every drift rate, so speed can be judged as a
+	 * single quality rather than four unrelated numbers. */
+	speed: 1,
+
+	/* ---- Light ----
+	 * exposure is the headline brightness, and the setting most likely to
+	 * break text legibility.
+	 *
+	 * The ceiling is not a matter of taste. Lights drift, so given long
+	 * enough ANY light passes behind ANY line of text; the worst case is
+	 * over time, not at one instant. Measured by fast-forwarding the drift:
+	 * at 0.85 a hot light behind the hero label read 1.95:1 and a violet one
+	 * 3.70:1, both under AA. 0.6 with hot at 0.5 is where it clears.
+	 *
+	 * Raise this and re-run the check before shipping it. */
+	exposure: 0.6,
+	/** Exposure past the fold, as a fraction of the above. */
+	bodyExposure: 0.34,
+	/** Edge visibility. Push this up and it starts to read as particles.js. */
+	edges: 0.17,
+	/** Max 3D distance at which two lights get wired together. Rebuilds. */
+	linkDist: 560,
+	/** Chance per frame of starting a new pulse, at hero exposure. */
+	pulseRate: 0.022,
+	/** How much the lower viewport is darkened, to protect small text. */
+	scrim: 0.72,
+
+	/* ---- The near-white lights ----
+	 * A handful of neutral lights keep the field from reading as monochrome
+	 * blue, but they are also by far the worst offenders for contrast,
+	 * being the brightest thing on the canvas. hot scales their brightness,
+	 * hotShare is what fraction of the lights are neutral rather than
+	 * coloured. */
+	hot: 0.5,
+	hotShare: 0.12,
+};
+
+export type FieldConfig = typeof FIELD;
+
+/** Settings that change the point cloud itself and need a regenerate. */
+export const REBUILD_KEYS: (keyof FieldConfig)[] = [
+	'seed',
+	'count',
+	'near',
+	'far',
+	'linkDist',
+];
+
+/* ------------------------------------------------------------------ */
+/* Internals                                                           */
+/* ------------------------------------------------------------------ */
 
 type RGB = [number, number, number];
 
@@ -102,9 +194,7 @@ interface Node {
 	x: number;
 	y: number;
 	z: number;
-	/** Palette index. */
 	c: number;
-	/** Base brightness, so the field is not uniformly lit. */
 	b: number;
 	px: number;
 	py: number;
@@ -122,21 +212,37 @@ interface Pulse {
 	v: number;
 }
 
-/** Field geometry. The camera sits at the origin looking down +z. */
 const SPAN = 1000;
-/**
- * Z_NEAR has to be genuinely far from the lens. Projected scale is F/z, so a
- * light allowed to drift close renders as a screen-filling smear.
- */
-const Z_NEAR = 700;
-const Z_FAR = 2700;
-const FOCUS = 1400;
-const F = 900;
-const LINK_DIST = 560;
 
-/** Exposure at the top of the page, and past the fold. */
-const HERO = { gain: 1, edge: 1, pulse: 0.022 };
-const BODY = { gain: 0.34, edge: 0.5, pulse: 0.004 };
+/**
+ * Small deterministic PRNG (mulberry32). Same seed, same field, every load.
+ */
+function makeRng(seed: number) {
+	let a = seed >>> 0;
+	return () => {
+		a = (a + 0x6d2b79f5) | 0;
+		let t = Math.imul(a ^ (a >>> 15), 1 | a);
+		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+	};
+}
+
+let regenerate: (() => void) | null = null;
+
+/** Rebuilds the point cloud, for settings that change the cloud itself. */
+export function rebuildField() {
+	regenerate?.();
+}
+
+if (import.meta.env.DEV) {
+	// Console handles, dev only, stripped from the production build.
+	//
+	//   FIELD.bokeh = 90        // takes effect on the next frame
+	//   FIELD.seed = 12; rebuildField()   // for anything in REBUILD_KEYS
+	//
+	// Settle on numbers here, then write them into FIELD above so they ship.
+	Object.assign(window, { FIELD, rebuildField, REBUILD_KEYS });
+}
 
 export function initField() {
 	const canvas = document.querySelector<HTMLCanvasElement>('.lightfield');
@@ -155,45 +261,61 @@ export function initField() {
 	const sprites = palette.map(makeSprites);
 	const bg = token('--bg');
 
-	const nodes: Node[] = [];
-	for (let i = 0; i < 190; i++) {
-		nodes.push({
-			x: (Math.random() - 0.5) * SPAN * 2.4,
-			y: (Math.random() - 0.5) * SPAN * 1.6,
-			z: Z_NEAR + Math.random() * (Z_FAR - Z_NEAR),
-			c: Math.random() < 0.12 ? 2 : Math.random() < 0.5 ? 0 : 1,
-			b: 0.45 + Math.random() * 0.55,
-			px: Math.random() * Math.PI * 2,
-			py: Math.random() * Math.PI * 2,
-		});
-	}
+	let nodes: Node[] = [];
+	let edges: Edge[] = [];
+	let sx = new Float32Array(0);
+	let sy = new Float32Array(0);
+	let sz = new Float32Array(0);
+	let sa = new Float32Array(0);
+	let order: number[] = [];
+	const pulses: Pulse[] = [];
 
-	/**
-	 * Topology is computed ONCE from the base positions. The camera moves and
-	 * the nodes only breathe, so recomputing neighbours every frame would burn
-	 * O(n^2) for a result that barely changes.
-	 */
-	const edges: Edge[] = [];
-	for (let i = 0; i < nodes.length; i++) {
-		let made = 0;
-		for (let j = i + 1; j < nodes.length && made < 3; j++) {
-			const dx = nodes[i].x - nodes[j].x;
-			const dy = nodes[i].y - nodes[j].y;
-			const dz = nodes[i].z - nodes[j].z;
-			const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
-			if (d < LINK_DIST) {
-				edges.push({ a: i, b: j, w: 1 - d / LINK_DIST });
-				made++;
+	const build = () => {
+		// Seeded, so the arrangement is identical on every load. Pulses still
+		// use Math.random(): those are meant to be unpredictable.
+		const rng = makeRng(FIELD.seed);
+		nodes = [];
+		for (let i = 0; i < FIELD.count; i++) {
+			nodes.push({
+				x: (rng() - 0.5) * SPAN * 2.4,
+				y: (rng() - 0.5) * SPAN * 1.6,
+				z: FIELD.near + rng() * (FIELD.far - FIELD.near),
+				c: rng() < FIELD.hotShare ? 2 : rng() < 0.5 ? 0 : 1,
+				b: 0.45 + rng() * 0.55,
+				px: rng() * Math.PI * 2,
+				py: rng() * Math.PI * 2,
+			});
+		}
+
+		/**
+		 * Topology is computed ONCE per build, from the base positions. The
+		 * camera moves and the nodes only breathe, so recomputing neighbours
+		 * every frame would burn O(n^2) for a result that barely changes.
+		 */
+		edges = [];
+		for (let i = 0; i < nodes.length; i++) {
+			let made = 0;
+			for (let j = i + 1; j < nodes.length && made < 3; j++) {
+				const dx = nodes[i].x - nodes[j].x;
+				const dy = nodes[i].y - nodes[j].y;
+				const dz = nodes[i].z - nodes[j].z;
+				const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+				if (d < FIELD.linkDist) {
+					edges.push({ a: i, b: j, w: 1 - d / FIELD.linkDist });
+					made++;
+				}
 			}
 		}
-	}
 
-	const pulses: Pulse[] = [];
-	const sx = new Float32Array(nodes.length);
-	const sy = new Float32Array(nodes.length);
-	const sz = new Float32Array(nodes.length);
-	const sa = new Float32Array(nodes.length);
-	const order = Array.from(nodes.keys());
+		sx = new Float32Array(nodes.length);
+		sy = new Float32Array(nodes.length);
+		sz = new Float32Array(nodes.length);
+		sa = new Float32Array(nodes.length);
+		order = Array.from(nodes.keys());
+		pulses.length = 0;
+	};
+	build();
+	regenerate = build;
 
 	let w = 0;
 	let h = 0;
@@ -213,15 +335,19 @@ export function initField() {
 		const span = window.innerHeight * 0.8;
 		const p = Math.max(0, Math.min(1, window.scrollY / span));
 		const e = p * p * (3 - 2 * p); // smoothstep, so there is no visible seam
+		const lo = FIELD.exposure * FIELD.bodyExposure;
 		return {
-			gain: HERO.gain + (BODY.gain - HERO.gain) * e,
-			edge: HERO.edge + (BODY.edge - HERO.edge) * e,
-			pulse: HERO.pulse + (BODY.pulse - HERO.pulse) * e,
+			gain: FIELD.exposure + (lo - FIELD.exposure) * e,
+			// Edges fall to half past the fold, not to bodyExposure: they are
+			// already faint, and taking them down as far as the lights loses
+			// the structure entirely.
+			edge: FIELD.edges * (1 - 0.5 * e),
+			pulse: FIELD.pulseRate * (1 + (0.18 - 1) * e),
 		};
 	}
 
 	const draw = (time: number) => {
-		const t = time / 1000;
+		const t = (time / 1000) * FIELD.speed;
 		const exp = exposure();
 
 		ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -251,14 +377,14 @@ export function initField() {
 			const ry = by - camY;
 
 			sz[i] = rz;
-			if (rz <= Z_NEAR) {
+			if (rz <= FIELD.near) {
 				sa[i] = 0;
 				continue;
 			}
-			const k = F / rz;
+			const k = FIELD.lens / rz;
 			sx[i] = cx + rx * k;
 			sy[i] = cy + ry * k;
-			sa[i] = Math.max(0, Math.min(1, (Z_FAR - rz) / 900)) * n.b;
+			sa[i] = Math.max(0, Math.min(1, (FIELD.far - rz) / 900)) * n.b;
 		}
 
 		ctx.globalCompositeOperation = 'lighter';
@@ -273,8 +399,8 @@ export function initField() {
 			const ab = sa[b];
 			if (aa <= 0 || ab <= 0) continue;
 			const depth = (sz[a] + sz[b]) / 2;
-			const fade = Math.max(0, 1 - Math.abs(depth - FOCUS) / 1500);
-			const alpha = ew * fade * Math.min(aa, ab) * 0.17 * exp.edge;
+			const fade = Math.max(0, 1 - Math.abs(depth - FIELD.focus) / 1500);
+			const alpha = ew * fade * Math.min(aa, ab) * exp.edge;
 			if (alpha < 0.004) continue;
 			ctx.strokeStyle = `rgba(${glow[0]}, ${glow[1]}, ${glow[2]}, ${alpha})`;
 			ctx.beginPath();
@@ -291,15 +417,16 @@ export function initField() {
 			const rz = sz[i];
 			// Defocus grows either side of the focal plane, and an out-of-focus
 			// light gets BIGGER and dimmer, not just smaller.
-			const defocus = Math.min(1, Math.abs(rz - FOCUS) / 1150);
+			const defocus = Math.min(1, Math.abs(rz - FIELD.focus) / FIELD.falloff);
 			const step = Math.min(
 				SPRITE_STEPS - 1,
 				Math.round(defocus * (SPRITE_STEPS - 1))
 			);
-			const scale = F / rz;
-			const size = Math.min(140, (7 + defocus * 52) * scale);
+			const scale = FIELD.lens / rz;
+			const size = Math.min(140, (7 + defocus * FIELD.bokeh) * scale);
 			if (size < 0.6) continue;
-			ctx.globalAlpha = alpha * (1 - defocus * 0.45) * 0.85 * exp.gain;
+			const hot = nodes[i].c === 2 ? FIELD.hot : 1;
+			ctx.globalAlpha = alpha * (1 - defocus * 0.45) * exp.gain * hot;
 			ctx.drawImage(
 				sprites[nodes[i].c][step],
 				sx[i] - size / 2,
@@ -321,17 +448,20 @@ export function initField() {
 		}
 		for (let i = pulses.length - 1; i >= 0; i--) {
 			const p = pulses[i];
-			p.t += p.v * 0.016;
+			p.t += p.v * 0.016 * FIELD.speed;
 			if (p.t >= 1) {
 				pulses.splice(i, 1);
 				continue;
 			}
 			const { a, b } = edges[p.e];
-			if (sa[a] <= 0 || sa[b] <= 0) continue;
+			if (!sa[a] || !sa[b]) continue;
 			const px = sx[a] + (sx[b] - sx[a]) * p.t;
 			const py = sy[a] + (sy[b] - sy[a]) * p.t;
 			const depth = sz[a] + (sz[b] - sz[a]) * p.t;
-			const defocus = Math.min(1, Math.abs(depth - FOCUS) / 1150);
+			const defocus = Math.min(
+				1,
+				Math.abs(depth - FIELD.focus) / FIELD.falloff
+			);
 			const step = Math.min(
 				SPRITE_STEPS - 1,
 				Math.round(defocus * (SPRITE_STEPS - 1))
@@ -339,7 +469,7 @@ export function initField() {
 			// Brightest mid-run, so it reads as a travelling glint rather than a
 			// dot that blinks on and off.
 			const life = Math.sin(p.t * Math.PI);
-			const size = Math.min(70, (6 + defocus * 16) * (F / depth));
+			const size = Math.min(70, (6 + defocus * 16) * (FIELD.lens / depth));
 			ctx.globalAlpha = life * 0.95 * exp.gain;
 			ctx.drawImage(sprites[2][step], px - size / 2, py - size / 2, size, size);
 		}
@@ -357,7 +487,7 @@ export function initField() {
 		// mean the rendered pixels and the measurable pixels disagree.
 		const scrim = ctx.createLinearGradient(0, h * 0.34, 0, h);
 		scrim.addColorStop(0, `rgba(${bg[0]}, ${bg[1]}, ${bg[2]}, 0)`);
-		scrim.addColorStop(1, `rgba(${bg[0]}, ${bg[1]}, ${bg[2]}, 0.72)`);
+		scrim.addColorStop(1, `rgba(${bg[0]}, ${bg[1]}, ${bg[2]}, ${FIELD.scrim})`);
 		ctx.fillStyle = scrim;
 		ctx.fillRect(0, 0, w, h);
 	};
