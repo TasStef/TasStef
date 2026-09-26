@@ -128,15 +128,29 @@ function token(name: string): RGB {
 		.getPropertyValue(name)
 		.trim();
 
-	const hex = v.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+	// 3, 4, 6 and 8 digits. The 4 and 8 digit forms carry alpha, which is
+	// dropped here: callers want the colour, and the alpha is applied
+	// separately at draw time.
+	//
+	// The 8-digit case is not hypothetical. The production CSS minifier
+	// rewrites rgba(168, 120, 246, 0.1) as #a878f61a, so a parser that only
+	// knows 3 and 6 digits works in dev and throws in the built site.
+	const hex = v.match(/^#([0-9a-f]{3,8})$/i);
 	if (hex) {
 		const h = hex[1];
-		const full = h.length === 3 ? h[0] + h[0] + h[1] + h[1] + h[2] + h[2] : h;
-		return [
-			parseInt(full.slice(0, 2), 16),
-			parseInt(full.slice(2, 4), 16),
-			parseInt(full.slice(4, 6), 16),
-		];
+		let full: string | null = null;
+		if (h.length === 3 || h.length === 4) {
+			full = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+		} else if (h.length === 6 || h.length === 8) {
+			full = h.slice(0, 6);
+		}
+		if (full) {
+			return [
+				parseInt(full.slice(0, 2), 16),
+				parseInt(full.slice(2, 4), 16),
+				parseInt(full.slice(4, 6), 16),
+			];
+		}
 	}
 
 	const nums = v.match(/[0-9.]+/g);

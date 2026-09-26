@@ -1,4 +1,5 @@
 import { initField } from './field';
+import { initPerf, exposePerf } from './perf';
 
 /**
  * All client-side motion for the site. Kept in one module so the total JS
@@ -374,12 +375,37 @@ export function initTilt() {
 	}
 }
 
+/**
+ * Runs `fn` after the browser has painted at least once.
+ *
+ * rAF fires before the paint it belongs to; the nested timeout lands after
+ * it. Anything decorative and expensive goes through here.
+ */
+function afterFirstPaint(fn: () => void) {
+	requestAnimationFrame(() => window.setTimeout(fn, 0));
+}
+
 export function initMotion() {
+	if (import.meta.env.DEV) {
+		// Registered first so the observers catch startup work, including
+		// whatever this function goes on to do.
+		initPerf();
+		exposePerf();
+	}
+
 	initReveal();
 	initScramble();
 	initCounters();
 	initCollapsibles();
 	initDiagrams();
-	initField();
 	initTilt();
+
+	// The field is decoration, and building it is expensive: a 129ms long
+	// task in a production build, measured ending 45ms before first
+	// contentful paint. The page was therefore blank for the whole of it.
+	//
+	// Deferring past the first paint means the content arrives on time and
+	// the field follows a frame later. There is nothing to flash in the gap,
+	// because the canvas paints the page background colour anyway.
+	afterFirstPaint(initField);
 }
