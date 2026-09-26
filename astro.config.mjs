@@ -2,10 +2,10 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// TODO(setup): replace with the real GitHub username before the first deploy.
-// User site  -> site: 'https://<username>.github.io', base: '/'
-// Project repo -> site: 'https://<username>.github.io', base: '/portfolio'
-const SITE = 'https://YOUR-USERNAME.github.io';
+// User site: the repo is named TasStef.github.io, so the site is served from
+// the domain root and BASE stays '/'. A project repo would instead need
+// BASE = '/portfolio' and nothing else changed.
+const SITE = 'https://tasstef.github.io';
 const BASE = '/';
 
 // https://astro.build/config
@@ -13,10 +13,7 @@ export default defineConfig({
 	site: SITE,
 	base: BASE,
 	integrations: [
-		sitemap({
-			// theme-lab is temporary scaffolding, not a real page.
-			filter: (page) => !page.includes('theme-lab'),
-		}),
+		sitemap(),
 	],
 	build: {
 		// Emit /about/index.html rather than /about.html so GitHub Pages
