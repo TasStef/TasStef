@@ -2,10 +2,16 @@
  * Parses src/styles/tokens.css and checks every text/background pairing
  * against WCAG AA (4.5:1) in BOTH colour schemes.
  *
- * Also checks text against the LIT background: the ambient orbs are fixed
- * to the viewport, so every line on the page can end up sitting on them,
- * and where the two orbs overlap they are at their brightest. That overlap
- * is the real worst case and it is what caps --glow / --glow-2.
+ * Also checks text against a LIT background built from --glow / --glow-2.
+ *
+ * The two orbs this originally modelled are gone, replaced by the light
+ * field in src/scripts/field.ts, whose brightness is a render-time property
+ * and cannot be derived from tokens. The model is kept deliberately as an
+ * over-estimate: it composites both glow tokens at full overlap, which is
+ * brighter than anything the field actually puts behind text (measured peak
+ * rgb(30,31,37) against this model's #33314d). So passing here is a
+ * stricter bar than the page itself, and the field is verified separately
+ * by sampling real canvas pixels under every text node.
  *
  * Product marks are checked too, at the 3:1 graphical-object bar.
  *
@@ -77,14 +83,13 @@ for (const [name, v, rgba] of schemes) {
 		if (!ok) failures++;
 		console.log(`   ${ok ? 'ok  ' : 'FAIL'} ${label.padEnd(20)}${r.toFixed(2)}:1`);
 	}
-	// Worst case on the page, built up one layer at a time exactly as the
-	// browser composites them: page background, both orbs overlapping, then
-	// a hovered card fill, then the sheen at the very top of that card.
-	// Muted text is always the first thing to fail on it.
+	// A deliberately pessimistic stack: page background, both glow tokens at
+	// full overlap, a hovered card fill, then the sheen at the top of that
+	// card. Muted text is always the first thing to fail on it.
 	if (rgba.glow && rgba['glow-2']) {
 		const litRgb = over(rgba['glow-2'], over(rgba.glow, hex(v.bg)));
 		const lit = toHex(litRgb);
-		console.log(`   -- under both orbs, bg becomes ${lit}`);
+		console.log(`   -- under full glow overlap, bg becomes ${lit}`);
 
 		const layers = [['on glow', lit]];
 		if (rgba['surface-hover']) {

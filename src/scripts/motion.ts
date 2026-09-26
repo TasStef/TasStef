@@ -1,3 +1,5 @@
+import { initField } from './field';
+
 /**
  * All client-side motion for the site. Kept in one module so the total JS
  * cost is visible in one place.
@@ -284,58 +286,6 @@ export function initDiagrams() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Ambient light rig                                                   */
-/* ------------------------------------------------------------------ */
-
-/**
- * Fallback driver for the background light, for browsers without
- * scroll-driven CSS animations.
- *
- * The drift itself is defined once, as keyframes in Base.astro. Where the
- * browser supports `animation-timeline: scroll()` it runs them against the
- * document scroll on the compositor and this function does nothing at all.
- * Where it does not, the same keyframes are left paused and seeked by
- * writing scroll progress into --scroll.
- *
- * One set of keyframes, two drivers — so the two paths cannot drift apart.
- */
-export function initAmbient() {
-	const rig = document.querySelector<HTMLElement>('.lightrig');
-	if (!rig) return;
-
-	// Native scroll timelines are both smoother and free; leave them to it.
-	if (CSS.supports('animation-timeline: scroll(root block)')) return;
-
-	// Parked at its reduced-motion position by CSS. Driving --scroll here
-	// would animate it anyway, since the CSS cannot un-write what JS sets.
-	if (reduced()) return;
-
-	let queued = false;
-
-	const write = () => {
-		queued = false;
-		const max = document.documentElement.scrollHeight - window.innerHeight;
-		rig.style.setProperty(
-			'--scroll',
-			max > 0 ? String(Math.min(1, window.scrollY / max)) : '0'
-		);
-	};
-
-	// Coalesced to one write per frame. The property is set on the rig
-	// rather than on :root so the style invalidation is scoped to the two
-	// orbs instead of every element on the page.
-	const schedule = () => {
-		if (queued) return;
-		queued = true;
-		requestAnimationFrame(write);
-	};
-
-	window.addEventListener('scroll', schedule, { passive: true });
-	window.addEventListener('resize', schedule, { passive: true });
-	write();
-}
-
-/* ------------------------------------------------------------------ */
 /* Hover tilt                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -430,6 +380,6 @@ export function initMotion() {
 	initCounters();
 	initCollapsibles();
 	initDiagrams();
-	initAmbient();
+	initField();
 	initTilt();
 }
