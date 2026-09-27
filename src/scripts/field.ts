@@ -89,6 +89,27 @@ export const FIELD = {
 	 * coloured. */
 	hot: 0.5,
 	hotShare: 0.12,
+
+	/* ---- Light scheme ----
+	 * On a near-white page there is nothing to add light to. --bg is
+	 * rgb(251,251,249), so additive blending has four to six levels of
+	 * headroom per channel before every light clips to pure white. Measured:
+	 * the whole canvas spanned 1.045:1 across 89 distinct colours, against
+	 * 2.626:1 across 1382 in dark. The lights were being drawn, and were
+	 * invisible.
+	 *
+	 * So on a light page the field multiplies instead of adding, and the
+	 * motes darken the page rather than lighting it. Multiply bites much
+	 * harder per unit alpha than adding does, so these scale the same
+	 * exposure curve down rather than replacing it. Light scheme only.
+	 *
+	 * Tuned the same way the dark exposure was, by fast-forwarding the drift
+	 * rather than trusting one frame: at 1.2 the small hero label bottomed at
+	 * 4.85:1 against its 4.5 bar and was still falling, at 0.8 it holds
+	 * 5.78:1 over six drift states. Canvas spread lands at ~1.66:1, against
+	 * 1.045:1 before this existed. */
+	lightGain: 0.8,
+	lightEdge: 0.66,
 };
 
 export type FieldConfig = typeof FIELD;
@@ -158,6 +179,27 @@ function token(name: string): RGB {
 
 	throw new Error(`Cannot parse colour token ${name}: "${v}"`);
 }
+
+/**
+ * Relative luminance, WCAG's definition. Used to answer exactly one
+ * question: is the page background already bright enough that adding light
+ * to it would do nothing?
+ */
+function luminance([r, g, b]: RGB): number {
+	const f = (c: number) => {
+		c /= 255;
+		return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+	};
+	return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+
+/**
+ * The neutral lights that keep the field from reading as monochrome blue.
+ * Near-white is a light on a dark page; on a light page it has to be dark,
+ * or multiplying by it changes nothing.
+ */
+const NEUTRAL_ON_DARK: RGB = [226, 232, 240];
+const NEUTRAL_ON_LIGHT: RGB = [92, 99, 122];
 
 const SPRITE_STEPS = 7;
 
@@ -275,14 +317,34 @@ export function initField() {
 
 	const isReduced = reduced();
 
-	const glow = token('--glow');
-	const palette: RGB[] = [
-		glow,
-		token('--glow-2'),
-		[226, 232, 240], // a few near-white lights, so it is not monochrome blue
-	];
-	const sprites = palette.map(makeSprites);
-	const bg = token('--bg');
+	// Theme state is mutable: all of it derives from CSS tokens, and the OS
+	// scheme can change while the page is open.
+	let glow = token('--glow');
+	let bg = token('--bg');
+	let isLight = false;
+	let blend: GlobalCompositeOperation = 'lighter';
+	let sprites: HTMLCanvasElement[][] = [];
+
+	/**
+	 * Samples the palette from the stylesheet and rebuilds the sprites.
+	 *
+	 * Which way the field composites is decided by the rendered background
+	 * rather than by the media query, because the real question is whether
+	 * any headroom is left to add light to, and --bg is what answers it.
+	 */
+	const readTheme = () => {
+		glow = token('--glow');
+		bg = token('--bg');
+		isLight = luminance(bg) > 0.5;
+		blend = isLight ? 'multiply' : 'lighter';
+		const palette: RGB[] = [
+			glow,
+			token('--glow-2'),
+			isLight ? NEUTRAL_ON_LIGHT : NEUTRAL_ON_DARK,
+		];
+		sprites = palette.map(makeSprites);
+	};
+	readTheme();
 
 	let nodes: Node[] = [];
 	let edges: Edge[] = [];
@@ -390,12 +452,16 @@ export function initField() {
 		const p = Math.max(0, Math.min(1, scrollY / span));
 		const e = p * p * (3 - 2 * p); // smoothstep, so there is no visible seam
 		const lo = FIELD.exposure * FIELD.bodyExposure;
+		// Multiply darkens far faster than adding brightens, so the light
+		// scheme runs this same curve at a lower level rather than its own.
+		const gainScale = isLight ? FIELD.lightGain : 1;
+		const edgeScale = isLight ? FIELD.lightEdge : 1;
 		return {
-			gain: FIELD.exposure + (lo - FIELD.exposure) * e,
+			gain: (FIELD.exposure + (lo - FIELD.exposure) * e) * gainScale,
 			// Edges fall to half past the fold, not to bodyExposure: they are
 			// already faint, and taking them down as far as the lights loses
 			// the structure entirely.
-			edge: FIELD.edges * (1 - 0.5 * e),
+			edge: FIELD.edges * (1 - 0.5 * e) * edgeScale,
 			pulse: FIELD.pulseRate * (1 + (0.18 - 1) * e),
 		};
 	}
@@ -458,7 +524,7 @@ export function initField() {
 			}
 		}
 
-		ctx.globalCompositeOperation = 'lighter';
+		ctx.globalCompositeOperation = blend;
 
 		// Edges are deliberately faint. A point field wired with prominent
 		// lines reads as a particles.js demo; leading with defocused light and
@@ -580,6 +646,15 @@ export function initField() {
 		ctx.fillStyle = scrim;
 		ctx.fillRect(0, 0, w, h);
 	};
+
+	// The OS scheme can flip while the page is open. CSS repaints itself; the
+	// canvas has to be told, because it sampled its palette once at startup.
+	window
+		.matchMedia('(prefers-color-scheme: light)')
+		.addEventListener('change', () => {
+			readTheme();
+			if (isReduced) draw(0); // the static path has no loop to repaint it
+		});
 
 	if (isReduced) {
 		// One static frame. The field is composition as much as motion, so it
