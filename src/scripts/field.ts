@@ -104,11 +104,19 @@ export const FIELD = {
 	 * exposure curve down rather than replacing it. Light scheme only.
 	 *
 	 * Tuned the same way the dark exposure was, by fast-forwarding the drift
-	 * rather than trusting one frame: at 1.2 the small hero label bottomed at
-	 * 4.85:1 against its 4.5 bar and was still falling, at 0.8 it holds
-	 * 5.78:1 over six drift states. Canvas spread lands at ~1.66:1, against
-	 * 1.045:1 before this existed. */
-	lightGain: 0.8,
+	 * rather than trusting a single frame, and at eight samples per setting.
+	 * Three is not enough: it twice produced a reading a longer run flatly
+	 * contradicted. The binding case is one mote landing on the small hero
+	 * label, which is rare and transient, so the worst case only appears
+	 * with sampling and never at an arbitrary instant.
+	 *
+	 * Measured worst against that label 4.5 bar: 0.8 -> 4.93:1, 0.9 ->
+	 * 4.76:1, 1.0 -> 4.45:1 which fails, and 1.45 with the neutral lights
+	 * dimmed to compensate -> 2.55:1, which fails badly despite looking
+	 * comfortable over three samples. 0.9 buys about a quarter more mean
+	 * departure from the page than 0.8 costs 4% of margin, and there is not
+	 * much room above it. */
+	lightGain: 0.9,
 	lightEdge: 0.66,
 };
 
